@@ -1,0 +1,6 @@
+@ForoUniversitario_HostAddress = http://localhost:5196
+
+GET {{ForoUniversitario_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
