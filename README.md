@@ -51,7 +51,7 @@ ______
 
 ## 🎯 Diagrama de Casos de Uso
 
-![Diagrama de Casos de Uso](diagrams/DiagramadeCasosdeUso.png)
+![Diagrama de Casos de Uso](diagrams/DiagramadeCasosdeUso.PNG)
 
 ## ✨ Prototipo
 
