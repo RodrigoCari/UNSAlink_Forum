@@ -1,7 +1,8 @@
-﻿using ForoUniversitario.Domain.Posts;
+﻿using ForoUniversitario.DomainLayer.Posts;
+using ForoUniversitario.DomainLayer.Users;
 using Microsoft.EntityFrameworkCore;
 
-namespace ForoUniversitario.Infrastructure.Persistence;
+namespace ForoUniversitario.InfrastructureLayer.Persistence;
 
 public class ForumDbContext : DbContext
 {
@@ -9,9 +10,11 @@ public class ForumDbContext : DbContext
         : base(options) { }
 
     public DbSet<Post> Posts => Set<Post>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new PostConfiguration());
+        modelBuilder.ApplyConfiguration(new UserConfiguration());
     }
 }

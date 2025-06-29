@@ -1,4 +1,4 @@
-﻿namespace ForoUniversitario.Application.Posts;
+﻿namespace ForoUniversitario.ApplicationLayer.Posts;
 
 public class CreatePostCommand
 {

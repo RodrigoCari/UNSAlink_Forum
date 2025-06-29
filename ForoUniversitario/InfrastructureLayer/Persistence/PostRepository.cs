@@ -1,7 +1,7 @@
-﻿using ForoUniversitario.Domain.Posts;
+﻿using ForoUniversitario.DomainLayer.Posts;
 using Microsoft.EntityFrameworkCore;
 
-namespace ForoUniversitario.Infrastructure.Persistence;
+namespace ForoUniversitario.InfrastructureLayer.Persistence;
 
 public class PostRepository : IPostRepository
 {

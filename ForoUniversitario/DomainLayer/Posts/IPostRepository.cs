@@ -1,4 +1,4 @@
-﻿namespace ForoUniversitario.Domain.Posts;
+﻿namespace ForoUniversitario.DomainLayer.Posts;
 
 public interface IPostRepository
 {

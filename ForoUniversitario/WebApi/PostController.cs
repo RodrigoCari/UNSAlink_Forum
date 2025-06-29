@@ -1,7 +1,7 @@
-﻿using ForoUniversitario.Application.Posts;
+﻿using ForoUniversitario.ApplicationLayer.Posts;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ForoUniversitario.Api;
+namespace ForoUniversitario.WebApi;
 
 [ApiController]
 [Route("api/[controller]")]

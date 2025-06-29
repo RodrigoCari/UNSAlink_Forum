@@ -1,6 +1,6 @@
-﻿using ForoUniversitario.Domain.Posts;
+﻿using ForoUniversitario.DomainLayer.Posts;
 
-namespace ForoUniversitario.Application.Posts;
+namespace ForoUniversitario.ApplicationLayer.Posts;
 
 public class PostService : IPostService
 {
