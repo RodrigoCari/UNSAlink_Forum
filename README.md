@@ -48,6 +48,10 @@ ______
 - Interacción por medio de mensajes y reacciones.
 - Búsqueda de usuarios, grupos y eventos.
 - Panel de administración para moderadores.
+- 
+## ✨ Trello
+
+https://trello.com/b/asrftQrL/unsalink
 
 ## 🎯 Diagrama de Casos de Uso
 
