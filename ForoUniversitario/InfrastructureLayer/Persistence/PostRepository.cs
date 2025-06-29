@@ -26,4 +26,11 @@ public class PostRepository : IPostRepository
     {
         await _context.SaveChangesAsync();
     }
+
+    public async Task<IEnumerable<Post>> GetByTypeAsync(TypePost type)
+    {
+        return await _context.Posts
+            .Where(p => p.Type == type)
+            .ToListAsync();
+    }
 }

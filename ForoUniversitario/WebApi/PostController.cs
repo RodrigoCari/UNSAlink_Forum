@@ -8,10 +8,12 @@ namespace ForoUniversitario.WebApi;
 public class PostController : ControllerBase
 {
     private readonly IPostService _postService;
+    private readonly ICommentService _commentService;
 
-    public PostController(IPostService postService)
+    public PostController(IPostService postService, ICommentService commentService)
     {
         _postService = postService;
+        _commentService = commentService;
     }
 
     [HttpPost]
@@ -27,5 +29,34 @@ public class PostController : ControllerBase
         var post = await _postService.GetByIdAsync(id);
         if (post == null) return NotFound();
         return Ok(post);
+    }
+
+    [HttpPost("{postId}/share/{groupId}")]
+    public async Task<IActionResult> ShareToGroup(Guid postId, Guid groupId)
+    {
+        await _postService.ShareToGroupAsync(postId, groupId);
+        return NoContent();
+    }
+
+    [HttpPost("{postId}/comment")]
+    public async Task<IActionResult> Comment(Guid postId, [FromBody] AddCommentCommand command)
+    {
+        command.PostId = postId;
+        await _commentService.AddCommentAsync(command);
+        return Ok();
+    }
+
+    [HttpGet("type/{type}")]
+    public async Task<IActionResult> GetByType(int type)
+    {
+        var list = await _postService.GetByTypeAsync(type);
+        return Ok(list);
+    }
+
+    [HttpPost("{postId}/request-ideas")]
+    public async Task<IActionResult> RequestIdeas(Guid postId)
+    {
+        await _postService.RequestIdeasAsync(postId);
+        return NoContent();
     }
 }

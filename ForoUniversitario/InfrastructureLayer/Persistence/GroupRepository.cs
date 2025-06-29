@@ -36,15 +36,18 @@ public class GroupRepository : IGroupRepository
             .ToListAsync();
     }
 
-    public async Task JoinAsync(Guid groupId, Guid userId)
+    public Task JoinAsync(Guid groupId, Guid userId)
     {
-        // Simulated join (needs a join table in real DB model)
-        // Here, assume another structure exists or is mocked.
+        // Placeholder logic - no DB update without join table
+        Console.WriteLine($"User {userId} joined group {groupId}.");
+        return Task.CompletedTask;
     }
 
-    public async Task LeaveAsync(Guid groupId, Guid userId)
+    public Task LeaveAsync(Guid groupId, Guid userId)
     {
-        // Simulated leave
+        // Placeholder logic - no DB update without join table
+        Console.WriteLine($"User {userId} left group {groupId}.");
+        return Task.CompletedTask;
     }
 
     public async Task SaveChangesAsync()
