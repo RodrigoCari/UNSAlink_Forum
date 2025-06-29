@@ -2,6 +2,6 @@
 
 public interface IPostService
 {
-    Task<Guid> CrearPostAsync(CreatePostCommand command);
-    Task<PostDto?> ObtenerPostPorIdAsync(Guid id);
+    Task<Guid> CreateAsync(CreatePostCommand command);
+    Task<PostDto?> GetByIdAsync(Guid id);
 }

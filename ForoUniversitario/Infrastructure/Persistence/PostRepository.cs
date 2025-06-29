@@ -5,9 +5,9 @@ namespace ForoUniversitario.Infrastructure.Persistence;
 
 public class PostRepository : IPostRepository
 {
-    private readonly ForoDbContext _context;
+    private readonly ForumDbContext _context;
 
-    public PostRepository(ForoDbContext context)
+    public PostRepository(ForumDbContext context)
     {
         _context = context;
     }

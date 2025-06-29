@@ -12,16 +12,16 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
 
         builder.HasKey(p => p.Id);
 
-        builder.Property(p => p.FechaCreacion)
-               .IsRequired();
+        builder.Property(p => p.Title).IsRequired().HasMaxLength(200);
+        builder.Property(p => p.Author).IsRequired().HasMaxLength(100);
+        builder.Property(p => p.CreatedAt).IsRequired();
 
-        // Value Object: ContenidoPost → se mapea como objeto embebido
-        builder.OwnsOne(p => p.Contenido, contenido =>
+        builder.OwnsOne(p => p.Content, content =>
         {
-            contenido.Property(c => c.Texto)
-                     .HasColumnName("ContenidoTexto")
-                     .IsRequired()
-                     .HasMaxLength(1000);
+            content.Property(c => c.Text)
+                   .HasColumnName("ContentText")
+                   .IsRequired()
+                   .HasMaxLength(1000);
         });
     }
 }

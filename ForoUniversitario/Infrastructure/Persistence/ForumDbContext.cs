@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ForoUniversitario.Infrastructure.Persistence;
 
-public class ForoDbContext : DbContext
+public class ForumDbContext : DbContext
 {
-    public ForoDbContext(DbContextOptions<ForoDbContext> options)
+    public ForumDbContext(DbContextOptions<ForumDbContext> options)
         : base(options) { }
 
     public DbSet<Post> Posts => Set<Post>();

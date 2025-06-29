@@ -11,10 +11,10 @@ public class PostService : IPostService
         _repository = repository;
     }
 
-    public async Task<Guid> CrearPostAsync(CreatePostCommand command)
+    public async Task<Guid> CreateAsync(CreatePostCommand command)
     {
-        var contenido = new ContenidoPost(command.Contenido);
-        var post = new Post(Guid.NewGuid(), contenido);
+        var content = new PostContent(command.Content);
+        var post = new Post(Guid.NewGuid(), command.Title, content, command.Author);
 
         await _repository.AddAsync(post);
         await _repository.SaveChangesAsync();
@@ -22,18 +22,18 @@ public class PostService : IPostService
         return post.Id;
     }
 
-    public async Task<PostDto?> ObtenerPostPorIdAsync(Guid id)
+    public async Task<PostDto?> GetByIdAsync(Guid id)
     {
         var post = await _repository.GetByIdAsync(id);
-
-        if (post == null)
-            return null;
+        if (post == null) return null;
 
         return new PostDto
         {
             Id = post.Id,
-            Contenido = post.Contenido.Texto,
-            FechaCreacion = post.FechaCreacion
+            Title = post.Title,
+            Content = post.Content.Text,
+            Author = post.Author,
+            CreatedAt = post.CreatedAt
         };
     }
 }

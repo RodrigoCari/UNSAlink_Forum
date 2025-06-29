@@ -12,8 +12,8 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<ForoDbContext>(options =>
-    options.UseInMemoryDatabase("ForoDB"));
+builder.Services.AddDbContext<ForumDbContext>(options =>
+    options.UseInMemoryDatabase("ForumDb"));
 
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IPostService, PostService>();

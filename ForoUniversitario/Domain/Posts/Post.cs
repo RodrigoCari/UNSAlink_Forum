@@ -3,20 +3,24 @@
 public class Post
 {
     public Guid Id { get; private set; }
-    public ContenidoPost Contenido { get; private set; }
-    public DateTime FechaCreacion { get; private set; }
+    public string Title { get; private set; }
+    public PostContent Content { get; private set; }
+    public string Author { get; private set; }
+    public DateTime CreatedAt { get; private set; }
 
-    private Post() { } // Constructor privado para EF
+    private Post() { } // Required by EF
 
-    public Post(Guid id, ContenidoPost contenido)
+    public Post(Guid id, string title, PostContent content, string author)
     {
         Id = id;
-        Contenido = contenido ?? throw new ArgumentNullException(nameof(contenido));
-        FechaCreacion = DateTime.UtcNow;
+        Title = title ?? throw new ArgumentNullException(nameof(title));
+        Content = content ?? throw new ArgumentNullException(nameof(content));
+        Author = author ?? throw new ArgumentNullException(nameof(author));
+        CreatedAt = DateTime.UtcNow;
     }
 
-    public void EditarContenido(string nuevoTexto)
+    public void EditContent(string newText)
     {
-        Contenido = new ContenidoPost(nuevoTexto);
+        Content = new PostContent(newText);
     }
 }
