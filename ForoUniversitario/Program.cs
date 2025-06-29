@@ -1,5 +1,7 @@
+using ForoUniversitario.ApplicationLayer.Notifications;
 using ForoUniversitario.ApplicationLayer.Posts;
 using ForoUniversitario.ApplicationLayer.Users;
+using ForoUniversitario.DomainLayer.Notifications;
 using ForoUniversitario.DomainLayer.Posts;
 using ForoUniversitario.DomainLayer.Users;
 using ForoUniversitario.InfrastructureLayer.Persistence;
@@ -22,6 +24,9 @@ builder.Services.AddScoped<IPostService, PostService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 var app = builder.Build();
 
