@@ -20,8 +20,11 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 
+//builder.Services.AddDbContext<ForumDbContext>(options =>
+//    options.UseInMemoryDatabase("ForumDb"));
+
 builder.Services.AddDbContext<ForumDbContext>(options =>
-    options.UseInMemoryDatabase("ForumDb"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IPostService, PostService>();
