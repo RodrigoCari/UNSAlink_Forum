@@ -61,3 +61,8 @@ https://www.figma.com/design/cyspGkz0LOdwwIw2VNx517/UNSAlink?node-id=0-1&p=f&t=p
 ## ✨ Trello
 
 https://trello.com/b/asrftQrL/unsalink
+
+## 🔍 Interfaz Gráfica para la Exploración y Prueba de Endpoints de la API (Swagger UI)
+
+![Swagger UI 1](diagrams/SwaggerUI-1.png)
+![Swagger UI 2](diagrams/SwaggerUI-2.png)
