@@ -5,8 +5,8 @@ namespace ForoUniversitario.DomainLayer.Users;
 public class User
 {
     public Guid Id { get; private set; }
-    public string Name { get; private set; }
-    public string Email { get; private set; }
+    public string Name { get; private set; } = string.Empty;
+    public string Email { get; private set; } = string.Empty;
     public Role Role { get; private set; }
 
     public List<Post> Posts { get; private set; } = new();

@@ -6,8 +6,8 @@ namespace ForoUniversitario.DomainLayer.Posts;
 public class Post
 {
     public Guid Id { get; private set; }
-    public string Title { get; private set; }
-    public PostContent Content { get; private set; }
+    public string Title { get; private set; } = string.Empty;
+    public PostContent Content { get; private set; } = null!; // NAV
 
     public Guid AuthorId { get; private set; } // FK
     public User Author { get; private set; } = null!; // NAV

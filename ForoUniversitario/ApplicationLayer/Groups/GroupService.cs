@@ -1,19 +1,28 @@
 ﻿using ForoUniversitario.DomainLayer.Groups;
+using ForoUniversitario.DomainLayer.Users;
 
 namespace ForoUniversitario.ApplicationLayer.Groups;
 
 public class GroupService : IGroupService
 {
     private readonly IGroupRepository _repository;
+    private readonly IUserRepository _userRepository;
 
-    public GroupService(IGroupRepository repository)
+    public GroupService(IGroupRepository repository, IUserRepository userRepository)
     {
         _repository = repository;
+        _userRepository = userRepository;
     }
 
     public async Task<Guid> CreateAsync(CreateGroupCommand command)
     {
-        var group = new Group(Guid.NewGuid(), command.Name, command.Description);
+        var admin = await _userRepository.GetByIdAsync(command.AdminId);
+        if (admin == null)
+            throw new InvalidOperationException("Admin user not found.");
+
+        var group = new Group(Guid.NewGuid(), command.Name, command.Description, command.AdminId);
+        group.AddMember(admin); // Opcional: el admin es también miembro
+
         await _repository.CreateAsync(group);
         await _repository.SaveChangesAsync();
         return group.Id;
@@ -26,13 +35,20 @@ public class GroupService : IGroupService
         {
             Id = group.Id,
             Name = group.Name,
-            Description = group.Description
+            Description = group.Description,
+            AdminId = group.AdminId
         };
     }
 
     public async Task JoinAsync(Guid groupId, Guid userId)
     {
-        await _repository.JoinAsync(groupId, userId);
+        var user = await _userRepository.GetByIdAsync(userId);
+        var group = await _repository.FindAsync(groupId);
+
+        if (user == null || group == null)
+            throw new InvalidOperationException("Group or user not found.");
+
+        group.AddMember(user);
         await _repository.SaveChangesAsync();
     }
 
@@ -43,7 +59,8 @@ public class GroupService : IGroupService
         {
             Id = g.Id,
             Name = g.Name,
-            Description = g.Description
+            Description = g.Description,
+            AdminId = g.AdminId
         });
     }
 }
