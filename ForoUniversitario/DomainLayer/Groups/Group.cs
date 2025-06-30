@@ -1,4 +1,6 @@
-﻿namespace ForoUniversitario.DomainLayer.Groups;
+﻿using ForoUniversitario.DomainLayer.Posts;
+
+namespace ForoUniversitario.DomainLayer.Groups;
 
 public class Group
 {
@@ -6,7 +8,9 @@ public class Group
     public string Name { get; private set; }
     public string Description { get; private set; }
 
-    private Group() { } // EF Core
+    public List<Post> Posts { get; private set; } = new(); // Nueva relación
+
+    private Group() { }
 
     public Group(Guid id, string name, string description)
     {

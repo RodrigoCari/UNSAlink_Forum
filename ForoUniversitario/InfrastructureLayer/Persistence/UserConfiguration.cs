@@ -12,16 +12,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasKey(u => u.Id);
 
-        builder.Property(u => u.Name)
-               .IsRequired()
-               .HasMaxLength(100);
+        builder.Property(u => u.Name).IsRequired().HasMaxLength(100);
+        builder.Property(u => u.Email).IsRequired().HasMaxLength(150);
+        builder.Property(u => u.Role).IsRequired().HasConversion<string>();
 
-        builder.Property(u => u.Email)
-               .IsRequired()
-               .HasMaxLength(150);
-
-        builder.Property(u => u.Role)
-               .IsRequired()
-               .HasConversion<string>(); // almacena el enum como texto
+        builder.HasMany(u => u.Posts)
+               .WithOne(p => p.Author)
+               .HasForeignKey(p => p.AuthorId)
+               .OnDelete(DeleteBehavior.Cascade); // Posts se eliminan si se borra el usuario
     }
 }

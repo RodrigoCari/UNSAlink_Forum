@@ -1,4 +1,4 @@
-﻿using System.Data;
+﻿using ForoUniversitario.DomainLayer.Posts;
 
 namespace ForoUniversitario.DomainLayer.Users;
 
@@ -9,7 +9,9 @@ public class User
     public string Email { get; private set; }
     public Role Role { get; private set; }
 
-    private User() { } // EF
+    public List<Post> Posts { get; private set; } = new();
+
+    private User() { }
 
     public User(Guid id, string name, string email, Role role)
     {

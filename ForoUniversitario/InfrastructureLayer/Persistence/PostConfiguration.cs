@@ -1,4 +1,5 @@
-﻿using ForoUniversitario.DomainLayer.Posts;
+﻿using ForoUniversitario.DomainLayer.Groups;
+using ForoUniversitario.DomainLayer.Posts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,16 +17,18 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
                .IsRequired()
                .HasMaxLength(200);
 
-        builder.Property(p => p.Author)
-               .IsRequired()
-               .HasMaxLength(100);
-
         builder.Property(p => p.CreatedAt)
                .IsRequired();
 
         builder.Property(p => p.Type)
                .IsRequired()
                .HasConversion<string>();
+
+        builder.Property(p => p.AuthorId)
+               .IsRequired();
+
+        builder.Property(p => p.GroupId)
+               .IsRequired();
 
         builder.OwnsOne(p => p.Content, content =>
         {
@@ -37,6 +40,11 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
 
         builder.HasMany(p => p.Comments)
                .WithOne()
+               .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<Group>() // navegación implícita
+               .WithMany(g => g.Posts)
+               .HasForeignKey(p => p.GroupId)
                .OnDelete(DeleteBehavior.Cascade);
     }
 }

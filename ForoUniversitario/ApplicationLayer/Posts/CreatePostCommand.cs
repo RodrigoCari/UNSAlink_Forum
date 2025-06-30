@@ -6,6 +6,7 @@ public class CreatePostCommand
 {
     public string Title { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
-    public string Author { get; set; } = string.Empty;
+    public Guid AuthorId { get; set; }
+    public Guid GroupId { get; set; }
     public TypePost Type { get; set; }
 }

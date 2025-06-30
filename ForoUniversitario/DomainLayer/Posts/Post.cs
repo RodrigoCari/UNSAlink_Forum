@@ -1,23 +1,33 @@
-﻿namespace ForoUniversitario.DomainLayer.Posts;
+﻿using ForoUniversitario.DomainLayer.Users;
+using ForoUniversitario.DomainLayer.Groups;
+
+namespace ForoUniversitario.DomainLayer.Posts;
 
 public class Post
 {
     public Guid Id { get; private set; }
     public string Title { get; private set; }
     public PostContent Content { get; private set; }
-    public string Author { get; private set; }
+
+    public Guid AuthorId { get; private set; } // FK
+    public User Author { get; private set; } = null!; // NAV
+
+    public Guid GroupId { get; private set; } // FK
+    public Group Group { get; private set; } = null!; // NAV
+
     public TypePost Type { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public List<Comment> Comments { get; private set; } = new();
 
-    private Post() { } // Required by EF
+    private Post() { }
 
-    public Post(Guid id, string title, PostContent content, string author, TypePost type)
+    public Post(Guid id, string title, PostContent content, Guid authorId, Guid groupId, TypePost type)
     {
         Id = id;
         Title = title ?? throw new ArgumentNullException(nameof(title));
         Content = content ?? throw new ArgumentNullException(nameof(content));
-        Author = author ?? throw new ArgumentNullException(nameof(author));
+        AuthorId = authorId;
+        GroupId = groupId;
         Type = type;
         CreatedAt = DateTime.UtcNow;
     }
