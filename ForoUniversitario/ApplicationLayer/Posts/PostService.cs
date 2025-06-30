@@ -1,6 +1,8 @@
 ﻿using ForoUniversitario.DomainLayer.Posts;
 using ForoUniversitario.DomainLayer.Users;
 using ForoUniversitario.DomainLayer.Groups;
+using ForoUniversitario.DomainLayer.Factories;
+using ForoUniversitario.DomainLayer.DomainServices;
 
 namespace ForoUniversitario.ApplicationLayer.Posts;
 
@@ -10,26 +12,31 @@ public class PostService : IPostService
     private readonly IUserRepository _userRepository;
     private readonly IGroupRepository _groupRepository;
 
+    private readonly IPostFactory _postFactory;
+    private readonly IPostDomainService _postDomainService;
+
     public PostService(
         IPostRepository postRepository,
         IUserRepository userRepository,
-        IGroupRepository groupRepository)
+        IGroupRepository groupRepository,
+        IPostFactory postFactory,
+        IPostDomainService postDomainService)
     {
         _postRepository = postRepository;
         _userRepository = userRepository;
         _groupRepository = groupRepository;
+        _postFactory = postFactory;
+        _postDomainService = postDomainService;
     }
 
     public async Task<Guid> CreateAsync(CreatePostCommand command)
     {
-        var post = new Post(
-            Guid.NewGuid(),
+        var post = _postFactory.CreatePost(
             command.Title,
-            new PostContent(command.Content),
+            command.Content,
             command.AuthorId,
             command.GroupId,
-            command.Type
-        );
+            command.Type);
 
         await _postRepository.AddAsync(post);
         await _postRepository.SaveChangesAsync();
@@ -86,15 +93,19 @@ public class PostService : IPostService
         return result;
     }
 
-    public Task ShareToGroupAsync(Guid postId, Guid groupId)
+    public async Task ShareToGroupAsync(Guid postId, Guid groupId)
     {
-        // Lógica opcional que podrías implementar.
-        throw new NotImplementedException();
+        var post = await _postRepository.GetByIdAsync(postId);
+        if (post == null) throw new Exception("Post no encontrado");
+
+        bool canShare = await _postDomainService.CanSharePostToGroupAsync(post, groupId);
+        if (!canShare) throw new InvalidOperationException("No se puede compartir el post en el grupo destino");
+
+        throw new NotImplementedException("Implementa la lógica para compartir el post en el grupo");
     }
 
     public Task RequestIdeasAsync(Guid postId)
     {
-        // Lógica opcional que podrías implementar.
         throw new NotImplementedException();
     }
 }

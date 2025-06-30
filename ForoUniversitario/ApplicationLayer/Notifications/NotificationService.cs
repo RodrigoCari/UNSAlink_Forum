@@ -33,7 +33,7 @@ public class NotificationService : INotificationService
 
     public async Task MarkAsReadAsync(Guid notificationId)
     {
-        var notifications = await _repository.GetForUserAsync(Guid.Empty); // Could be optimized with a GetById
+        var notifications = await _repository.GetForUserAsync(Guid.Empty);
         var notification = notifications.FirstOrDefault(n => n.Id == notificationId);
         if (notification != null)
         {

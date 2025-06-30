@@ -1,5 +1,7 @@
 ﻿using ForoUniversitario.DomainLayer.Groups;
 using ForoUniversitario.DomainLayer.Users;
+using ForoUniversitario.DomainLayer.Factories;
+using ForoUniversitario.DomainLayer.DomainServices;
 
 namespace ForoUniversitario.ApplicationLayer.Groups;
 
@@ -7,11 +9,19 @@ public class GroupService : IGroupService
 {
     private readonly IGroupRepository _repository;
     private readonly IUserRepository _userRepository;
+    private readonly IGroupFactory _groupFactory;
+    private readonly IGroupDomainService _groupDomainService;
 
-    public GroupService(IGroupRepository repository, IUserRepository userRepository)
+    public GroupService(
+        IGroupRepository repository,
+        IUserRepository userRepository,
+        IGroupFactory groupFactory,
+        IGroupDomainService groupDomainService)
     {
         _repository = repository;
         _userRepository = userRepository;
+        _groupFactory = groupFactory;
+        _groupDomainService = groupDomainService;
     }
 
     public async Task<Guid> CreateAsync(CreateGroupCommand command)
@@ -20,8 +30,7 @@ public class GroupService : IGroupService
         if (admin == null)
             throw new InvalidOperationException("Admin user not found.");
 
-        var group = new Group(Guid.NewGuid(), command.Name, command.Description, command.AdminId);
-        group.AddMember(admin); // Opcional: el admin es también miembro
+        var group = _groupFactory.Create(command.Name, command.Description, admin);
 
         await _repository.CreateAsync(group);
         await _repository.SaveChangesAsync();
@@ -48,7 +57,8 @@ public class GroupService : IGroupService
         if (user == null || group == null)
             throw new InvalidOperationException("Group or user not found.");
 
-        group.AddMember(user);
+        await _groupDomainService.AddMemberAsync(group, user);
+
         await _repository.SaveChangesAsync();
     }
 

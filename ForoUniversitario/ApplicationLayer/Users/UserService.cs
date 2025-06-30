@@ -41,10 +41,9 @@ public class UserService : IUserService
 
     public async Task<List<string>> GetWorksAsync(Guid id)
     {
-        // Simulación
         var user = await _repository.GetByIdAsync(id);
         if (user == null) throw new Exception("User not found");
 
-        return new List<string> { "Work A", "Work B", "Work C" }; // Placeholder
+        return new List<string> { "Work A", "Work B", "Work C" };
     }
 }

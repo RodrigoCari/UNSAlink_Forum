@@ -9,22 +9,25 @@ public class Group
     public string Name { get; private set; } = string.Empty;
     public string Description { get; private set; } = string.Empty;
 
-    public Guid AdminId { get; private set; } // FK
+    public Guid AdminId { get; private set; }
     public User Admin { get; private set; } = null!;
 
     public List<User> Members { get; private set; } = new();
     public List<User> Viewers { get; private set; } = new();
-
     public List<Post> Posts { get; private set; } = new();
 
-    private Group() { }
+    private Group() { } // EF Core
 
-    public Group(Guid id, string name, string description, Guid adminId)
+    // Constructor usado solo por la fábrica
+    internal Group(Guid id, string name, string description, User admin)
     {
         Id = id;
         Name = name ?? throw new ArgumentNullException(nameof(name));
         Description = description ?? throw new ArgumentNullException(nameof(description));
-        AdminId = adminId;
+        Admin = admin ?? throw new ArgumentNullException(nameof(admin));
+        AdminId = admin.Id;
+
+        AddMember(admin); // El admin es también miembro automáticamente
     }
 
     public void AddMember(User user)

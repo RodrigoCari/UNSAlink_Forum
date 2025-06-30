@@ -2,6 +2,8 @@ using ForoUniversitario.ApplicationLayer.Groups;
 using ForoUniversitario.ApplicationLayer.Notifications;
 using ForoUniversitario.ApplicationLayer.Posts;
 using ForoUniversitario.ApplicationLayer.Users;
+using ForoUniversitario.DomainLayer.DomainServices;
+using ForoUniversitario.DomainLayer.Factories;
 using ForoUniversitario.DomainLayer.Groups;
 using ForoUniversitario.DomainLayer.Notifications;
 using ForoUniversitario.DomainLayer.Posts;
@@ -35,6 +37,12 @@ builder.Services.AddScoped<IGroupService, GroupService>();
 
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+
+builder.Services.AddScoped<IGroupFactory, GroupFactory>();
+builder.Services.AddScoped<IGroupDomainService, GroupDomainService>();
+
+builder.Services.AddScoped<IPostFactory, PostFactory>();
+builder.Services.AddScoped<IPostDomainService, PostDomainService>();
 
 var app = builder.Build();
 
