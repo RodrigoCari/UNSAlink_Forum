@@ -1,5 +1,11 @@
 # UNSAlink
 
+## Integrantes
+- Jair David Torres Barra
+- Jose Rodrigo Cari Almiron
+- Alex Enrique Cañapataña Vargas
+- Jesus Salvador Quinteros Condori
+
 ## Contexto
 
 UNSAlink nace con la intención de mejorar la interacción entre estudiantes, docentes y egresados de la Universidad Nacional de San Agustín, brindando un entorno digital seguro para el intercambio de conocimientos, oportunidades y recursos.
@@ -36,27 +42,27 @@ Nuestra propuesta consiste en desarrollar una solución digital moderna y funcio
 
 Este proyecto busca empoderar a los estudiantes creando un espacio inclusivo y accesible que reduzca la brecha digital y promueva la participación activa en la vida universitaria.
 
-## 📚 Diagrama de Clases
+## 🎯 Funcionalidades de Alto Nivel (Diagrama de Casos de Uso)
 
-______
+![Diagrama de Casos de Uso](diagrams/DiagramadeCasosdeUso.PNG)
 
-## 🚀 High-Level Features & Use Cases
+## ✨ Prototipo (o GUI)
 
-- Registro e inicio de sesión de usuarios.
-- Sistema de perfiles personalizados.
-- Publicación y visualización de eventos.
-- Interacción por medio de mensajes y reacciones.
-- Búsqueda de usuarios, grupos y eventos.
-- Panel de administración para moderadores.
-- 
+https://www.figma.com/design/cyspGkz0LOdwwIw2VNx517/UNSAlink?node-id=0-1&p=f&t=pSsgq7EzpiadQgGR-0
+
+## 📚 Modelo de Dominio: Diagrama de Clases + Módulos
+
+![Diagrama de Clases](diagrams/DiagramaDeClases.png)
+
+## 📚 Vista General de Arquitetura: Diagrama de Paquetes + Clases
+
+![Vista General de Arquitectura](diagrams/VistaGeneraldeArquitectura.png)
+
 ## ✨ Trello
 
 https://trello.com/b/asrftQrL/unsalink
 
-## 🎯 Diagrama de Casos de Uso
+## 🔍 Interfaz Gráfica para la Exploración y Prueba de Endpoints de la API (Swagger UI)
 
-![Diagrama de Casos de Uso](diagrams/DiagramadeCasosdeUso.PNG)
-
-## ✨ Prototipo
-
-https://www.figma.com/design/cyspGkz0LOdwwIw2VNx517/UNSAlink?node-id=0-1&p=f&t=pSsgq7EzpiadQgGR-0
+![Swagger UI 1](diagrams/SwaggerUI-1.png)
+![Swagger UI 2](diagrams/SwaggerUI-2.png)
