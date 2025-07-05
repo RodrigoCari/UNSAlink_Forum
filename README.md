@@ -1,10 +1,10 @@
 # UNSAlink
 
 ## Integrantes
-- Jair David Torres Barra.
-- Jose Rodrigo Cari Almiron.
-- Alex Enrique Cañapataña Vargas.
-- Jesus Salvador Quinteros Condori.
+- Jair David Torres Barra
+- Jose Rodrigo Cari Almiron
+- Alex Enrique Cañapataña Vargas
+- Jesus Salvador Quinteros Condori
 
 ## Contexto
 
