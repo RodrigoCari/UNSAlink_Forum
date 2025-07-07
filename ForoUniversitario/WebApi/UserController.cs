@@ -1,4 +1,5 @@
 ﻿using ForoUniversitario.ApplicationLayer.Users;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForoUniversitario.WebApi;
@@ -36,10 +37,25 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+    [Authorize]
     [HttpGet("{id}/works")]
     public async Task<IActionResult> GetWorks(Guid id)
     {
         var works = await _userService.GetWorksAsync(id);
         return Ok(works);
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginUserCommand command)
+    {
+        try
+        {
+            var token = await _userService.LoginAsync(command);
+            return Ok(new { Token = token });
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized("Invalid credentials");
+        }
     }
 }
