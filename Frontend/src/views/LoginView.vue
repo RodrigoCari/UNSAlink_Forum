@@ -1,3 +1,41 @@
+<script setup>
+import { ref } from 'vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
+
+const username = ref('')
+const password = ref('')
+const router = useRouter()
+
+const login = async () => {
+  console.log('Intentando login con:', { username: username.value, password: password.value })
+
+  try {
+    const response = await axios.post('https://localhost:44329/api/User/login', {
+      name: username.value.trim(),
+      password: password.value.trim()
+    })
+
+    console.log('Respuesta del backend:', response)
+
+    const token = response.data.token
+    console.log('Token recibido:', token)
+
+    if (token) {
+      localStorage.setItem('token', token)
+      console.log('Token guardado en localStorage')
+      router.push('/home')
+    } else {
+      console.warn('No se recibió token en la respuesta')
+      alert('Login fallido: no se recibió token')
+    }
+  } catch (error) {
+    console.error('Login failed:', error.response?.data || error.message || error)
+    alert('Usuario o contraseña incorrectos')
+  }
+}
+</script>
+
 <template>
   <div class="login-container">
     <div class="login-box">
@@ -5,14 +43,14 @@
       <h2>Welcome to Website</h2>
       <div class="input-group">
         <span class="icon">👤</span>
-        <input type="text" placeholder="Username" />
+        <input type="text" placeholder="Username" v-model="username" />
       </div>
       <div class="input-group">
         <span class="icon">🔒</span>
-        <input type="password" placeholder="Password" />
+        <input type="password" placeholder="Password" v-model="password" />
       </div>
-      <button class="continue-btn">Continue</button>
-      <p class="create-account">Create an account</p>
+      <button class="continue-btn" @click="login">Continue</button>
+      <p class="create-account"><span class="login-link" @click="$router.push('/signup')">Create an account</span></p>
     </div>
   </div>
 </template>
@@ -91,5 +129,11 @@
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.875rem;
   cursor: pointer;
+}
+
+.login-link {
+  text-decoration: underline;
+  cursor: pointer;
+  color: white;
 }
 </style>

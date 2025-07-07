@@ -6,4 +6,6 @@ public interface IUserRepository
     Task AddAsync(User user);
     Task ModifyAsync(User user);
     Task DeleteAsync(Guid id);
+    Task<User?> GetByNameAsync(string name);
+
 }
