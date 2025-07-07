@@ -24,9 +24,9 @@
         <input type="password" placeholder="Confirm Password" />
       </div>
 
-      <button class="signup-btn">Sign Up</button>
+      <button class="signup-btn" @click="$router.push('/interests')">Sign Up</button>
 
-      <p class="already-account">Already have an account? <span class="login-link">Login!</span></p>
+      <p class="already-account">Already have an account? <span class="login-link" @click="$router.push('/login')">Login!</span></p>
     </div>
   </div>
 </template>

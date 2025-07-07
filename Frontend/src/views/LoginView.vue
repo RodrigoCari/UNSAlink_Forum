@@ -12,7 +12,7 @@
         <input type="password" placeholder="Password" />
       </div>
       <button class="continue-btn">Continue</button>
-      <p class="create-account">Create an account</p>
+      <p class="create-account"><span class="login-link" @click="$router.push('/signup')">Create an account</span></p>
     </div>
   </div>
 </template>
@@ -91,5 +91,11 @@
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.875rem;
   cursor: pointer;
+}
+
+.login-link {
+  text-decoration: underline;
+  cursor: pointer;
+  color: white;
 }
 </style>
