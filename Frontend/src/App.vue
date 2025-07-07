@@ -19,13 +19,6 @@
     overflow: hidden;
   }
 
-  /*.main-content {
-    flex: 1;*/ /* ocupa el espacio que queda tras el sidebar */
-    /*padding: 1rem 2rem;*/ /* espacio interior */
-    /*background: #f5f5f5;*/ /* fondo claro todo el panel de contenido */
-    /*overflow-y: auto;*/ /* scroll sólo dentro del contenido */
-  /*}*/
-
   .main-content {
     margin-left: 220px;
     padding: 1rem;

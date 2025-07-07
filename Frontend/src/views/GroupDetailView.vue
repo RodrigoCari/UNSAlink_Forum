@@ -40,13 +40,13 @@
         </div>
         <div class="post-image">
           <img :src="group.imageUrl"
-               alt="Imagen del post" />
+               alt="Post " />
         </div>
         <div class="post-actions">
           <button class="icon-btn">⬆️ <span>{{ group.likes }}</span></button>
           <button class="icon-btn">💬 <span>{{ group.comments }}</span></button>
           <button class="icon-btn">🔗 <span>{{ group.shareCount }}</span></button>
-          <button class="btn join" :disabled="joined" @click="onJoin">
+          <button class="btn join" v-bind:disabled="joined" @click="onJoin">
             {{ joined ? 'Ya eres miembro' : 'Unirse' }}
           </button>
         </div>
