@@ -18,6 +18,11 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Register([FromBody] RegisterUserCommand command)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var id = await _userService.RegisterAsync(command);
         return CreatedAtAction(nameof(GetById), new { id }, null);
     }
