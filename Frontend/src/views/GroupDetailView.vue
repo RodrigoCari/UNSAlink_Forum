@@ -1,5 +1,5 @@
 <template>
-  <div class="page-wrapper">
+  <div v-if="group" class="page-wrapper">
     <!-- Título y iconos back/home -->
     <div class="page-header">
       <div class="nav-icons">
@@ -15,12 +15,17 @@
         </router-link>
       </div>
       <h1 class="page-title">{{ group.name }}</h1>
+      <small class="meta">
+        🔍 Creada el {{ formattedDate }}
+      </small>
     </div>
 
     <!-- Botones de interacción -->
     <div class="action-bar">
-      <button class="btn primary">+ Crear publicación</button>
-      <button class="btn">Unirse</button>
+      <button class="btn primary" @click="onCreatePost">+ Crear publicación</button>
+      <button class="btn" :disabled="joined" @click="onJoin">
+        {{ joined ? 'Ya eres miembro' : 'Unirse' }}
+      </button>
       <button class="btn icon-only">
         <img :src="group.imageUrl"
              alt="Más opciones"
@@ -40,13 +45,13 @@
         </div>
         <div class="post-image">
           <img :src="group.imageUrl"
-               alt="Post " />
+               alt="Post image" />
         </div>
         <div class="post-actions">
           <button class="icon-btn">⬆️ <span>{{ group.likes }}</span></button>
           <button class="icon-btn">💬 <span>{{ group.comments }}</span></button>
           <button class="icon-btn">🔗 <span>{{ group.shareCount }}</span></button>
-          <button class="btn join" v-bind:disabled="joined" @click="onJoin">
+          <button class="btn join" :disabled="joined" @click="onJoin">
             {{ joined ? 'Ya eres miembro' : 'Unirse' }}
           </button>
         </div>
@@ -67,6 +72,10 @@
       </div>
     </div>
   </div>
+
+  <div v-else class="page-wrapper">
+    <p class="loading">Cargando…</p>
+  </div>
 </template>
 
 <script setup>
@@ -77,16 +86,14 @@
 
   const route = useRoute()
   const router = useRouter()
-  // anterior
   const previousRoute = router.options.history.state.back || '/'
 
   const id = route.params.id
   const store = useGroupStore()
   const joined = computed(() => store.joined)
 
-  // Inicializar objeto
   const group = ref({
-    name: 'Cargando…',
+    name: '',
     author: '',
     date: '',
     content: '',
@@ -104,14 +111,53 @@
     }
   })
 
+  const formattedDate = computed(() => {
+    const d = group.value.groupInfo.created || group.value.date
+    return d
+      ? new Date(d).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+      : 'Fecha desconocida'
+  })
+
   onMounted(async () => {
-    const data = await fetchGroup(id)
-    if (data) group.value = data
+    try {
+      const data = await fetchGroup(id)
+      group.value = {
+        name: data.name || '—Sin nombre—',
+        author: data.adminName || `Admin ${data.adminId || ''}`,
+        date: data.creationDate || new Date().toISOString(),
+        content: data.description || '—Sin descripción—',
+        imageUrl: data.imageUrl || '/assets/default.jpg',
+        likes: data.likes ?? 0,
+        comments: data.comments ?? 0,
+        shareCount: data.shareCount ?? 0,
+        groupInfo: {
+          title: data.name || '—Sin título—',
+          description: data.description || '—Sin descripción—',
+          created: data.creationDate || new Date().toISOString(),
+          visibility: data.visibility || 'Público',
+          members: data.membersCount ?? 0,
+          online: data.onlineCount ?? 0
+        }
+      }
+    } catch (e) {
+      console.error(e)
+      // aquí podrías mostrar un mensaje al usuario
+    }
   })
 
   async function onJoin() {
-    await joinGroup(id)
-    store.joined = true
+    try {
+      await joinGroup(id)
+      store.joined = true
+    } catch (e) {
+      console.error(e)
+      alert('No se pudo unir al grupo.')
+    }
+  }
+
+  function onCreatePost() {
+    // navega a la pantalla de creación de post:
+    // router.push(`/groups/${id}/posts/new`)
   }
 </script>
 
@@ -138,6 +184,11 @@
     font-size: 1.75rem;
     font-weight: bold;
     margin: 0;
+  }
+
+  .meta {
+    color: #666;
+    font-size: 0.85rem;
   }
 
   .action-bar {
@@ -253,5 +304,11 @@
     font-size: 0.9rem;
     color: #666;
     margin-bottom: 0.5rem;
+  }
+
+  .loading {
+    text-align: center;
+    margin-top: 2rem;
+    color: #888;
   }
 </style>
