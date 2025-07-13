@@ -62,10 +62,11 @@ public class GroupService : IGroupService
         await _repository.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<GroupDto>> SearchAsync(string name)
+    public async Task<IEnumerable<GroupDto>> SearchAsync(string name, int page, int pageSize)
     {
         var groups = await _repository.SearchByNameAsync(name);
-        return groups.Select(g => new GroupDto
+        var pagedGroups = groups.Skip((page - 1) * pageSize).Take(pageSize);
+        return pagedGroups.Select(g => new GroupDto
         {
             Id = g.Id,
             Name = g.Name,

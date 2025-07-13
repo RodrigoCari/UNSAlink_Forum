@@ -15,31 +15,39 @@ public class GroupController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateGroupCommand command)
+    public async Task<ActionResult<GroupDto>> CreateAsync([FromBody] CreateGroupCommand command)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var id = await _groupService.CreateAsync(command);
-        return CreatedAtAction(nameof(GetById), new { id }, null);
+        var dto = await _groupService.GetByIdAsync(id);
+        return CreatedAtAction(nameof(GetByIdAsync), new { id = dto.Id }, dto);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<ActionResult<GroupDto>> GetByIdAsync(Guid id)
     {
         var group = await _groupService.GetByIdAsync(id);
-        if (group == null) return NotFound();
+        if (group == null)
+            return NotFound();
         return Ok(group);
     }
 
     [HttpPost("{groupId}/join")]
-    public async Task<IActionResult> Join(Guid groupId, [FromQuery] Guid userId)
+    public async Task<IActionResult> JoinAsync(Guid groupId, [FromQuery] Guid userId)
     {
         await _groupService.JoinAsync(groupId, userId);
-        return Ok();
+        return NoContent();
     }
 
     [HttpGet("search")]
-    public async Task<IActionResult> Search([FromQuery] string name)
+    public async Task<ActionResult<IEnumerable<GroupDto>>> SearchAsync(
+        [FromQuery] string name,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20)
     {
-        var results = await _groupService.SearchAsync(name);
+        var results = await _groupService.SearchAsync(name, page, pageSize);
         return Ok(results);
     }
 }
