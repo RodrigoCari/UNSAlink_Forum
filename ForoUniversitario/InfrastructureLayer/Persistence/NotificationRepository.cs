@@ -6,59 +6,35 @@ namespace ForoUniversitario.InfrastructureLayer.Persistence;
 public class NotificationRepository : INotificationRepository
 {
     private readonly ForumDbContext _context;
+    public NotificationRepository(ForumDbContext context) => _context = context;
 
-    public NotificationRepository(ForumDbContext context)
+    public async Task<IEnumerable<Notification>> GetForUserAsync(Guid userId) =>
+        await _context.Notifications
+                      .Where(n => n.ReceiverId == userId)
+                      .ToListAsync();
+
+    public async IAsyncEnumerable<Notification> StreamForUserAsync(Guid userId)
     {
-        _context = context;
+        await foreach (var n in _context.Notifications
+                                        .Where(n => n.ReceiverId == userId)
+                                        .AsAsyncEnumerable())
+            yield return n;
     }
 
-    public async Task<IEnumerable<Notification>> GetForUserAsync(Guid userId)
-    {
-        return await _context.Notifications
-                             .Where(n => n.ReceiverId == userId)
-                             .ToListAsync();
-    }
-
-    public async Task AddAsync(Notification notification)
-    {
+    public async Task AddAsync(Notification notification) =>
         await _context.Notifications.AddAsync(notification);
-    }
 
     public async Task DeleteAsync(Guid notificationId)
     {
-        var notification = await _context.Notifications.FindAsync(notificationId);
-        if (notification != null)
-        {
-            _context.Notifications.Remove(notification);
-        }
+        var notif = await _context.Notifications.FindAsync(notificationId);
+        if (notif is not null) _context.Notifications.Remove(notif);
     }
 
-    // Placeholder logic: These would contain domain-specific logic for moving posts/comments
-    public async Task MovePostAsync(Guid notificationId)
-    {
-        var notification = await _context.Notifications.FindAsync(notificationId);
-        if (notification != null)
-        {
-            // Implement domain logic here
-        }
-    }
+    public Task MovePostAsync(Guid notificationId) => Task.CompletedTask;
+    public Task MoveCommentAsync(Guid notificationId) => Task.CompletedTask;
 
-    public async Task MoveCommentAsync(Guid notificationId)
-    {
-        var notification = await _context.Notifications.FindAsync(notificationId);
-        if (notification != null)
-        {
-            // Implement domain logic here
-        }
-    }
+    public Task SaveChangesAsync() => _context.SaveChangesAsync();
 
-    public async Task SaveChangesAsync()
-    {
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task<Notification?> GetByIdAsync(Guid id)
-    {
-        return await _context.Notifications.FindAsync(id);
-    }
+    public Task<Notification?> GetByIdAsync(Guid id) =>
+        _context.Notifications.FindAsync(id).AsTask();
 }
