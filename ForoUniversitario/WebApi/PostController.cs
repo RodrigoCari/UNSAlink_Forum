@@ -16,32 +16,21 @@ public class PostController : ControllerBase
         _commentService = commentService;
     }
 
-    // ─── Cookbook / Trinity / Restful / Error-Handling ───
-
-    /// <summary>
-    /// Trinity style: Validate → Execute → Respond
-    /// Restful style: POST /api/posts → 201 Created
-    /// Error/Exception Handling: catch y ProblemDetails
-    /// </summary>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreatePostCommand comand)
     {
-        // Validate (Trinity)
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
         try
         {
-            // Execute (Trinity)
             var id = await _postService.CreateAsync(comand);
-            // Respond (Trinity & Restful)
             return CreatedAtAction(nameof(GetById), new { id }, null);
         }
         catch (System.Exception ex)
         {
-            // Error/Exception Handling
             return Problem(
                 detail: ex.Message,
                 statusCode: StatusCodes.Status500InternalServerError
@@ -49,11 +38,6 @@ public class PostController : ControllerBase
         }
     }
 
-    // ─── Restful style ───
-
-    /// <summary>
-    /// GET /api/posts/{id}
-    /// </summary>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -33,17 +33,25 @@
     <!-- Botones -->
     <div class="buttons">
       <button class="btn-cancel" @click="onCancel">Cancelar</button>
+
       <button class="btn-submit"
-              :disabled="loading || !form.title.trim()"
+              v-if="isSubmitDisabled"
+              disabled
               @click="onSubmit">
         {{ loading ? 'Enviando…' : 'Subir' }}
+      </button>
+      <button class="btn-submit"
+              v-else
+              @click="onSubmit">
+        {{ loading ? 'Enviando…' : 'Subir' }}
+
       </button>
     </div>
   </div>
 </template>
 
 <script setup>
-  import { ref, reactive, onMounted } from 'vue'
+  import { ref, reactive, onMounted, computed } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { fetchGroup } from '../services/groupService'
   import { fetchUserById } from '../services/userService'
@@ -66,6 +74,8 @@
     groupId,
     type: 0    // Discusion por defecto
   })
+
+  const isSubmitDisabled = computed(() => loading.value || !form.title.trim())
 
   onMounted(async () => {
     try {
