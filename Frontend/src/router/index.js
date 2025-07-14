@@ -3,6 +3,7 @@ import LoginView from '@/views/LoginView.vue'
 import SignupView from '@/views/SignupView.vue'
 import InterestsView from '@/views/InterestsView.vue'
 import HomeView from '@/views/HomeView.vue'
+import ModifyProfileView from '@/views/ModifyProfileView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,8 +29,13 @@ const router = createRouter({
       component: HomeView,
     },
     {
+      path: '/profile/modify',
+      name: 'modify-profile',
+      component: ModifyProfileView,
+    },
+    {
       path: '/',
-      redirect: '/login'
+      redirect: '/login',
     },
   ],
 })

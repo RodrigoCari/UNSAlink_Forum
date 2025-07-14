@@ -8,29 +8,25 @@ const password = ref('')
 const router = useRouter()
 
 const login = async () => {
-  console.log('Intentando login con:', { username: username.value, password: password.value })
-
   try {
     const response = await axios.post('https://localhost:44329/api/User/login', {
       name: username.value.trim(),
       password: password.value.trim()
     })
 
-    console.log('Respuesta del backend:', response)
-
     const token = response.data.token
-    console.log('Token recibido:', token)
-
     if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      const userId = payload.sub // ID del usuario
+
       localStorage.setItem('token', token)
-      console.log('Token guardado en localStorage')
+      localStorage.setItem('userId', userId)
+
       router.push('/home')
     } else {
-      console.warn('No se recibió token en la respuesta')
       alert('Login fallido: no se recibió token')
     }
   } catch (error) {
-    console.error('Login failed:', error.response?.data || error.message || error)
     alert('Usuario o contraseña incorrectos')
   }
 }
