@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ForoUniversitario.Migrations
 {
     [DbContext(typeof(ForumDbContext))]
-    [Migration("20250630131349_InitialCreate")]
+    [Migration("20250713234907_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -155,6 +155,10 @@ namespace ForoUniversitario.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
                         .IsRequired()

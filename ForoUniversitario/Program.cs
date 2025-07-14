@@ -47,11 +47,11 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddDbContext<ForumDbContext>(options =>
-    options.UseInMemoryDatabase("ForumDb"));
-
 //builder.Services.AddDbContext<ForumDbContext>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+//    options.UseInMemoryDatabase("ForumDb"));
+
+builder.Services.AddDbContext<ForumDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IPostService, PostService>();
