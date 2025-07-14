@@ -56,4 +56,9 @@ public class NotificationRepository : INotificationRepository
     {
         await _context.SaveChangesAsync();
     }
+
+    public async Task<Notification?> GetByIdAsync(Guid id)
+    {
+        return await _context.Notifications.FindAsync(id);
+    }
 }

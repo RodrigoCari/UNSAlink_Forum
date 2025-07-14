@@ -8,4 +8,5 @@ public interface INotificationRepository
     Task MovePostAsync(Guid notificationId);
     Task MoveCommentAsync(Guid notificationId);
     Task SaveChangesAsync();
+    Task<Notification?> GetByIdAsync(Guid id);
 }
