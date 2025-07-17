@@ -16,8 +16,8 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  margin-left: 220px; /* compensa el ancho de SideBar */
-  width: calc(100% - 220px); /* evita solapamiento */
+  margin-left: 24px; /* compensa el ancho de SideBar */
+  /*width: calc(100% - 220px); /* evita solapamiento */
   display: flex;
   justify-content: space-between;
   align-items: center;

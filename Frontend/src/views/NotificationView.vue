@@ -94,10 +94,10 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  flex: 1;
+  height: calc(100vh - 60px); /* resta la altura del topbar */
   background-color: #f3f4f6;
   font-family: 'Montserrat', sans-serif;
-  margin-left: 220px;
 }
 
 .content {
@@ -149,6 +149,7 @@ onMounted(() => {
 .message {
   margin-top: 0.5rem;
   color: #333;
+  text-align: center;
 }
 
 .mark-btn {

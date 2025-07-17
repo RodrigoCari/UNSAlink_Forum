@@ -15,16 +15,16 @@ import { RouterView } from 'vue-router'
 </template>
 
 <style scoped>
-  .app {
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-  }
+.app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
 
-  .main-content {
-    margin-left: 220px; /* mismo ancho que SideBar */
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
+.main-content {
+  margin-left: 220px; /* deja espacio para el sidebar */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
 </style>
