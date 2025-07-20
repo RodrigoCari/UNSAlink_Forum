@@ -44,7 +44,7 @@
   }
 
   function onSelect(group) {
-    router.push(`/groups/${group.id}`)
+    router.push(`/Group/${group.id}`)
     query.value = ''
     results.value = []
   }
