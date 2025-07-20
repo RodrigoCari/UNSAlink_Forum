@@ -20,7 +20,7 @@ export async function fetchJoinGroup(id) {
 }
 
 export async function joinGroup(id) {
-  const userId = 'F87E501A-93AC-4D75-87A9-1E1FACEEC900'
+  const userId = localStorage.getItem('userId')
   const res = await fetch(
     `${API_BASE}/${id}/join?userId=${userId}`,
     { method: 'POST', mode: 'cors' }

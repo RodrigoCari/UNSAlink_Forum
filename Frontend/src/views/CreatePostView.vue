@@ -62,7 +62,10 @@
   const groupId = route.params.id
 
   const groupName = ref('…')
-  const authorId = 'c83adca8-51e6-4504-a85c-da90c0d8184c'   // ID de prueba
+
+  const token = localStorage.getItem('token')
+  const authorId = localStorage.getItem('userId')
+
   const authorName = ref('…')
   const error = ref('')
   const loading = ref(false)
