@@ -47,7 +47,13 @@ public class GroupController : ControllerBase
         // Single Responsibility: sólo se encarga de orquestar la llamada
         var groups = await _groupService.SearchAsync(name);
         // Open/Closed: si mañana quiero filtrar por otro campo, extiendo IGroupService sin tocar este método
-        var dtos = groups.Select(g => new GroupDto { Id = g.Id, Name = g.Name });
+        var dtos = groups.Select(g => new GroupDto 
+        { 
+            Id = g.Id, 
+            Name = g.Name,
+            Description = g.Description,
+            AdminId = g.AdminId
+        });
         return Ok(dtos);
     }
 }
