@@ -7,5 +7,6 @@
         Task<IEnumerable<PostDto>> GetByTypeAsync(int typeInt);
         Task ShareToGroupAsync(Guid postId, Guid groupId);
         Task RequestIdeasAsync(Guid postId);
+        Task<IEnumerable<PostDto>> GetByGroupAsync(Guid groupId);
     }
 }

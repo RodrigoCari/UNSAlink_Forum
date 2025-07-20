@@ -93,6 +93,33 @@ public class PostService : IPostService
         return result;
     }
 
+    public async Task<IEnumerable<PostDto>> GetByGroupAsync(Guid groupId)
+    {
+        var posts = await _postRepository.GetByGroupAsync(groupId);
+
+        var result = new List<PostDto>();
+        foreach (var post in posts)
+        {
+            var author = await _userRepository.GetByIdAsync(post.AuthorId);
+            var group = await _groupRepository.FindAsync(post.GroupId);
+
+            result.Add(new PostDto
+            {
+                Id = post.Id,
+                Title = post.Title,
+                Content = post.Content.Text,
+                AuthorId = post.AuthorId,
+                AuthorName = author?.Name ?? "Unknown",
+                GroupId = post.GroupId,
+                GroupName = group?.Name ?? "Unknown",
+                Type = post.Type,
+                CreatedAt = post.CreatedAt
+            });
+        }
+
+        return result;
+    }
+
     public async Task ShareToGroupAsync(Guid postId, Guid groupId)
     {
         var post = await _postRepository.GetByIdAsync(postId);

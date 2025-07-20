@@ -77,4 +77,18 @@ public class PostController : ControllerBase
         await _postService.RequestIdeasAsync(postId);
         return NoContent();
     }
+
+    [HttpGet("group/{groupId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetByGroup(Guid groupId)
+    {
+        var posts = await _postService.GetByGroupAsync(groupId);
+
+        if (posts == null || !posts.Any())
+            return NotFound($"No hay publicaciones para el grupo con ID {groupId}");
+
+        return Ok(posts);
+    }
+
 }

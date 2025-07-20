@@ -62,7 +62,11 @@
   const groupId = route.params.id
 
   const groupName = ref('…')
-  const authorId = 'c83adca8-51e6-4504-a85c-da90c0d8184c'   // ID de prueba
+
+    // Obtener token y userId de la sesión
+  const token = localStorage.getItem('token')
+  const authorId = localStorage.getItem('userId')
+
   const authorName = ref('…')
   const error = ref('')
   const loading = ref(false)
@@ -70,9 +74,9 @@
   const form = reactive({
     title: '',
     content: '',
-    authorId,
+    authorId,   // <-- Aquí ya se usará el de la sesión
     groupId,
-    type: 0    // Discusion por defecto
+    type: 0
   })
 
   const isSubmitDisabled = computed(() => loading.value || !form.title.trim())
