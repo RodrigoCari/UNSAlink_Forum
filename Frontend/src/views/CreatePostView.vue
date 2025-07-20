@@ -100,7 +100,7 @@
     loading.value = true
     try {
       await createPost(form)
-      router.push(`/groups/${groupId}`)
+      router.push(`/group/${groupId}`)
     } catch (e) {
       error.value = e.message
     } finally {
