@@ -156,8 +156,7 @@
   }
 
   function onCreatePost() {
-    // navega a la pantalla de creación de post:
-    // router.push(`/groups/${id}/posts/new`)
+    router.push(`/group/${id}/create-post`)
   }
 </script>
 
