@@ -36,10 +36,18 @@ public class GroupController : ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Busca grupos cuyo nombre contenga 'name'
+    /// GET /api/Group/search?name=...
+    /// </summary>
     [HttpGet("search")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Search([FromQuery] string name)
     {
-        var results = await _groupService.SearchAsync(name);
-        return Ok(results);
+        // Single Responsibility: sólo se encarga de orquestar la llamada
+        var groups = await _groupService.SearchAsync(name);
+        // Open/Closed: si mañana quiero filtrar por otro campo, extiendo IGroupService sin tocar este método
+        var dtos = groups.Select(g => new GroupDto { Id = g.Id, Name = g.Name });
+        return Ok(dtos);
     }
 }
