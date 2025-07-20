@@ -6,6 +6,7 @@ import HomeView from '@/views/HomeView.vue'
 import CreatePostView from '../views/CreatePostView.vue'
 import NotificationView from '@/views/NotificationView.vue'
 import ModifyProfileView from '@/views/ModifyProfileView.vue'
+import GroupDetailView from '@/views/GroupDetailView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,6 +49,11 @@ const router = createRouter({
       path: '/group/:id/create-post',
       name: 'CreatePost',
       component: CreatePostView
+    },
+    {
+      path: '/group/:id/',
+      name: 'GroupDetail',
+      component: GroupDetailView
     }
   ],
 })

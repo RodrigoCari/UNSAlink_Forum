@@ -37,9 +37,17 @@ public class GroupController : ControllerBase
     }
 
     [HttpGet("search")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Search([FromQuery] string name)
     {
-        var results = await _groupService.SearchAsync(name);
-        return Ok(results);
+        var groups = await _groupService.SearchAsync(name);
+        var dtos = groups.Select(g => new GroupDto 
+        { 
+            Id = g.Id, 
+            Name = g.Name,
+            Description = g.Description,
+            AdminId = g.AdminId
+        });
+        return Ok(dtos);
     }
 }

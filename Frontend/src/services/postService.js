@@ -12,5 +12,5 @@ export async function createPost(dto) {
     catch { err = `Error ${res.status} al crear publicación`; }
     throw new Error(err);
   }
-  return await res.json();
+  return;
 }

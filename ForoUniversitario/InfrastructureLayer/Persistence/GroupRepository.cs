@@ -33,6 +33,7 @@ public class GroupRepository : IGroupRepository
     {
         return await _context.Set<Group>()
             .Where(g => g.Name.Contains(name))
+            .Include(g => g.Admin)
             .ToListAsync();
     }
 

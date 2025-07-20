@@ -10,3 +10,15 @@ export async function fetchGroup(id) {
   }
   return await res.json();
 }
+
+export async function searchGroups(name) {
+  const q = encodeURIComponent(name)
+  const res = await fetch(`${API_BASE}/Group/search?name=${q}`, { mode: 'cors' })
+  if (!res.ok) {
+    let err
+    try { err = (await res.json()).detail }
+    catch { err = `Error ${res.status} buscando grupos` }
+    throw new Error(err)
+  }
+  return await res.json()
+}
