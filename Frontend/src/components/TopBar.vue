@@ -1,6 +1,6 @@
 <template>
   <header class="topbar">
-    <input class="search" type="text" placeholder="Buscar en UNSAlink" />
+    <SearchBar />
     <div class="actions">
       <button class="icon">💬</button>
       <button class="create-btn">+ Crear</button>
@@ -8,6 +8,10 @@
     </div>
   </header>
 </template>
+
+<script setup>
+import SearchBar from '@/components/SearchBar.vue'
+</script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');

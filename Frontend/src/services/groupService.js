@@ -12,12 +12,13 @@ export async function fetchGroup(id) {
 }
 
 export async function searchGroups(name) {
-  const res = await fetch(`${API_BASE}/Group/search?name=${encodeURIComponent(name)}`, {
-    mode: 'cors'
-  });
+  const q = encodeURIComponent(name)
+  const res = await fetch(`${API_BASE}/Group/search?name=${q}`, { mode: 'cors' })
   if (!res.ok) {
-    const problem = await res.json().catch(() => null);
-    throw new Error(problem?.detail || `Error ${res.status} al buscar grupos`);
+    let err
+    try { err = (await res.json()).detail }
+    catch { err = `Error ${res.status} buscando grupos` }
+    throw new Error(err)
   }
-  return /** @type {{id:string,name:string}[]} */(await res.json());
+  return await res.json()
 }
