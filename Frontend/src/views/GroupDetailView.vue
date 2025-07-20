@@ -82,7 +82,7 @@
   import { ref, onMounted, computed } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { useGroupStore } from '../stores/group'
-  import { fetchGroup, joinGroup } from '../services/groupService'
+  import { fetchJoinGroup, joinGroup } from '../services/joinGroupService'
 
   const route = useRoute()
   const router = useRouter()
@@ -120,7 +120,7 @@
 
   onMounted(async () => {
     try {
-      const data = await fetchGroup(id)
+      const data = await fetchJoinGroup(id)
       group.value = {
         name: data.name || '—Sin nombre—',
         author: data.adminName || `Admin ${data.adminId || ''}`,
