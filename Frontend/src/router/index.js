@@ -3,6 +3,7 @@ import LoginView from '@/views/LoginView.vue'
 import SignupView from '@/views/SignupView.vue'
 import InterestsView from '@/views/InterestsView.vue'
 import HomeView from '@/views/HomeView.vue'
+import CreatePostView from '../views/CreatePostView.vue'
 import NotificationView from '@/views/NotificationView.vue'
 import ModifyProfileView from '@/views/ModifyProfileView.vue'
 
@@ -43,6 +44,11 @@ const router = createRouter({
     name: 'notifications',
     component: NotificationView
     },
+    {
+      path: '/group/:id/create-post',
+      name: 'CreatePost',
+      component: CreatePostView
+    }
   ],
 })
 
