@@ -37,7 +37,7 @@
       <p>Cargando perfil...</p>
     </div>
 
-    <!-- NUEVA SECCIÓN: Grupos del usuario -->
+    <!-- Grupos -->
     <div class="section-title" style="margin-top: 2.5rem;">
       <span class="bold-text">Grupos a los que pertenece</span>
     </div>
@@ -52,6 +52,22 @@
     <div v-else-if="!loadingGroups && user">
       <p>No se ha unido a ningún grupo.</p>
     </div>
+
+    <!-- Publicaciones -->
+    <div class="section-title" style="margin-top: 2.5rem;">
+      <span class="bold-text">Publicaciones del usuario</span>
+    </div>
+
+    <div class="form-cards" v-if="posts.length">
+      <div class="card" v-for="post in posts" :key="post.id">
+        <label>{{ post.title }}</label>
+        <div class="readonly-text">{{ post.content }}</div>
+      </div>
+    </div>
+
+    <div v-else-if="!loadingPosts && user">
+      <p>Este usuario no ha publicado nada aún.</p>
+    </div>
   </div>
 </template>
 
@@ -60,25 +76,32 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { fetchUserById } from '@/services/userService'
 import { fetchGroupsByUser } from '@/services/groupService'
+import { fetchPostsByUser } from '@/services/postService'
 
 const route = useRoute()
 const user = ref(null)
 const groups = ref([])
+const posts = ref([])
+
 const error = ref(null)
 const loadingGroups = ref(false)
+const loadingPosts = ref(false)
 
 const loadUser = async () => {
   try {
     const id = route.params.id
     user.value = await fetchUserById(id)
 
-    // Una vez obtenido el usuario, buscar sus grupos
     loadingGroups.value = true
     groups.value = await fetchGroupsByUser(id)
+
+    loadingPosts.value = true
+    posts.value = await fetchPostsByUser(id)
   } catch (err) {
     error.value = err.message || 'No se pudo cargar el perfil'
   } finally {
     loadingGroups.value = false
+    loadingPosts.value = false
   }
 }
 
