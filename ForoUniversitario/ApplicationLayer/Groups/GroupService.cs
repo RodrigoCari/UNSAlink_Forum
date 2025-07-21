@@ -73,4 +73,19 @@ public class GroupService : IGroupService
             AdminId = g.AdminId
         });
     }
+
+    public async Task<IEnumerable<GroupDto>> GetGroupsByUserAsync(Guid userId)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null) throw new InvalidOperationException("User not found.");
+
+        var groups = await _repository.GetGroupsByMemberAsync(userId);
+        return groups.Select(g => new GroupDto
+        {
+            Id = g.Id,
+            Name = g.Name,
+            Description = g.Description,
+            AdminId = g.AdminId
+        });
+    }
 }

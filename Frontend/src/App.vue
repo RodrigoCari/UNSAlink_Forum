@@ -9,7 +9,9 @@
     <SideBar />
     <div class="main-content">
       <TopBar />
-      <RouterView />
+      <div class="router-wrapper">
+        <RouterView />
+      </div>
     </div>
   </div>
 </template>
@@ -18,13 +20,21 @@
 .app {
   display: flex;
   height: 100vh;
-  overflow: hidden;
+  overflow: hidden; /* Mantén esto para evitar scroll lateral */
 }
 
 .main-content {
-  margin-left: 220px; /* deja espacio para el sidebar */
+  margin-left: 220px;
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* evita scroll doble */
+}
+
+/* Agrega este contenedor scrollable para el contenido */
+.router-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 2rem;
 }
 </style>

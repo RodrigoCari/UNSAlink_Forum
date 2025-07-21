@@ -44,6 +44,14 @@ public class GroupRepository : IGroupRepository
         return Task.CompletedTask;
     }
 
+    public async Task<IEnumerable<Group>> GetGroupsByMemberAsync(Guid userId)
+    {
+        return await _context.Groups
+            .Include(g => g.Members)
+            .Where(g => g.Members.Any(m => m.Id == userId))
+            .ToListAsync();
+    }
+
     public Task LeaveAsync(Guid groupId, Guid userId)
     {
         // Placeholder logic - no DB update without join table

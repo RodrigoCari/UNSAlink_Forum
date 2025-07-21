@@ -50,4 +50,11 @@ public class GroupController : ControllerBase
         });
         return Ok(dtos);
     }
+
+    [HttpGet("user/{userId}")]
+    public async Task<IActionResult> GetGroupsByUser(Guid userId)
+    {
+        var groups = await _groupService.GetGroupsByUserAsync(userId);
+        return Ok(groups);
+    }
 }

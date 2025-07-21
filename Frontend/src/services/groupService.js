@@ -22,3 +22,14 @@ export async function searchGroups(name) {
   }
   return await res.json()
 }
+
+export async function fetchGroupsByUser(userId) {
+  const res = await fetch(`${API_BASE}/Group/user/${userId}`, { mode: 'cors' })
+  if (!res.ok) {
+    let err
+    try { err = (await res.json()).detail }
+    catch { err = `Error ${res.status} al obtener grupos del usuario` }
+    throw new Error(err)
+  }
+  return await res.json()
+}

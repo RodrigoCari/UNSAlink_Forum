@@ -14,3 +14,12 @@ export async function createPost(dto) {
   }
   return;
 }
+
+export async function fetchPostsByUser(userId) {
+  const res = await fetch(`${API_BASE}/Post/user/${userId}`, { mode: 'cors' });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Error fetching posts: ${err}`);
+  }
+  return await res.json();
+}
