@@ -108,4 +108,19 @@ public class PostService : IPostService
     {
         throw new NotImplementedException();
     }
+
+    public async Task<IEnumerable<PostDto>> GetPostsByUserAsync(Guid userId)
+    {
+        var posts = await _postRepository.GetPostsByUserAsync(userId);
+        return posts.Select(p => new PostDto
+        {
+            Id = p.Id,
+            Title = p.Title,
+            Content = p.Content.Text,
+            AuthorId = p.AuthorId,
+            GroupId = p.GroupId,
+            CreatedAt = p.CreatedAt,
+            Type = p.Type
+        });
+    }
 }
