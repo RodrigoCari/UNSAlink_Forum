@@ -33,4 +33,11 @@ public class PostRepository : IPostRepository
             .Where(p => p.Type == type)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<Post>> GetPostsByUserAsync(Guid userId)
+    {
+        return await _context.Posts
+            .Where(p => p.AuthorId == userId)
+            .ToListAsync();
+    }
 }
