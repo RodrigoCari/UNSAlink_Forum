@@ -1,5 +1,6 @@
 ﻿using ForoUniversitario.ApplicationLayer.Posts;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ForoUniversitario.WebApi;
 
@@ -59,8 +60,14 @@ public class PostController : ControllerBase
     [HttpPost("{postId}/comment")]
     public async Task<IActionResult> Comment(Guid postId, [FromBody] AddCommentCommand command)
     {
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "uid" || c.Type == ClaimTypes.NameIdentifier);
+        if (userIdClaim == null) return Unauthorized("No autorizado");
+
+        var userId = Guid.Parse(userIdClaim.Value);
+
         command.PostId = postId;
-        await _commentService.AddCommentAsync(command);
+
+        await _commentService.AddCommentAsync(command, userId);
         return Ok();
     }
 

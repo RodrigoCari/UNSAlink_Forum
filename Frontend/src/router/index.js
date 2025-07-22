@@ -48,6 +48,11 @@ const router = createRouter({
       path: '/group/:id/create-post',
       name: 'CreatePost',
       component: CreatePostView
+    },
+    {
+      path: '/groups/:id',
+      name: 'GroupDetail',
+      component: () => import('../views/GroupDetailView.vue')
     }
   ],
 })

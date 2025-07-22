@@ -113,7 +113,14 @@ public class PostService : IPostService
                 GroupId = post.GroupId,
                 GroupName = group?.Name ?? "Unknown",
                 Type = post.Type,
-                CreatedAt = post.CreatedAt
+                CreatedAt = post.CreatedAt,
+                Comments = post.Comments.Select(c => new CommentDto
+                {
+                    Id = c.Id,
+                    Content = c.Content,
+                    Author = c.Author,
+                    CreatedAt = c.CreatedAt
+                }).ToList()
             });
         }
 
