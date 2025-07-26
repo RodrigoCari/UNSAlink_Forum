@@ -5,7 +5,7 @@ namespace ForoUniversitario.ApplicationLayer.Users;
 
 public class RegisterUserCommand
 {
-    [Required, MinLength(6)]
+    [Required, MinLength(3)]
     public string Name { get; set; } = string.Empty;
 
     [Required, EmailAddress]
