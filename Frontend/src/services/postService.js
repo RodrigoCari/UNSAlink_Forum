@@ -22,7 +22,7 @@ export async function fetchPostsByUser(userId) {
     throw new Error(`Error fetching posts: ${err}`);
   }
   return await res.json();
-
+}
 function handleError(res, defaultMessage) {
     return res.json().then(json => {
         throw new Error(json.detail || defaultMessage);
@@ -30,16 +30,6 @@ function handleError(res, defaultMessage) {
         throw new Error(`${defaultMessage} (status ${res.status})`);
     });
 
-}
-
-export async function createPost(dto) {
-    const res = await fetch(`${API_BASE}/Post`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dto)
-    });
-    if (!res.ok) throw await handleError(res, 'Error al crear publicación');
-    return await res.json();
 }
 
 export async function fetchGroupPosts(groupId) {
