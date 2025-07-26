@@ -23,5 +23,6 @@ public class ForumDbContext : DbContext
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new NotificationConfiguration());
         modelBuilder.ApplyConfiguration(new GroupConfiguration());
+        modelBuilder.ApplyConfiguration(new CommentConfiguration());
     }
 }

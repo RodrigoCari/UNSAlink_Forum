@@ -7,13 +7,17 @@ public class Comment
     public string Author { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
+    public Guid PostId { get; private set; }
+    public Post Post { get; private set; } = null!;
+
     private Comment() { }
 
-    public Comment(Guid id, string content, string author)
+    public Comment(Guid id, string content, string author, Guid postId)
     {
         Id = id;
         Content = content ?? throw new ArgumentNullException(nameof(content));
         Author = author ?? throw new ArgumentNullException(nameof(author));
         CreatedAt = DateTime.UtcNow;
+        PostId = postId;
     }
 }

@@ -14,9 +14,10 @@ public class CommentRepository : ICommentRepository
 
     public async Task AddAsync(Comment comment, Guid postId)
     {
-        var post = await _context.Posts.Include(p => p.Comments).FirstOrDefaultAsync(p => p.Id == postId);
-        if (post == null) throw new InvalidOperationException("Post not found.");
-        post.AddComment(comment);
+        var postExists = await _context.Posts.AnyAsync(p => p.Id == postId);
+        if (!postExists) throw new InvalidOperationException("Post not found.");
+
+        _context.Comments.Add(comment);
     }
 
     public async Task<IEnumerable<Comment>> GetByPostIdAsync(Guid postId)

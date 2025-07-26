@@ -1,5 +1,6 @@
 ﻿using ForoUniversitario.ApplicationLayer.Posts;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ForoUniversitario.WebApi;
 
@@ -59,8 +60,14 @@ public class PostController : ControllerBase
     [HttpPost("{postId}/comment")]
     public async Task<IActionResult> Comment(Guid postId, [FromBody] AddCommentCommand command)
     {
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "uid" || c.Type == ClaimTypes.NameIdentifier);
+        if (userIdClaim == null) return Unauthorized("No autorizado");
+
+        var userId = Guid.Parse(userIdClaim.Value);
+
         command.PostId = postId;
-        await _commentService.AddCommentAsync(command);
+
+        await _commentService.AddCommentAsync(command, userId);
         return Ok();
     }
 
@@ -82,6 +89,19 @@ public class PostController : ControllerBase
     public async Task<IActionResult> GetPostsByUser(Guid userId)
     {
         var posts = await _postService.GetPostsByUserAsync(userId);
+        return Ok(posts);
+    }
+
+    [HttpGet("group/{groupId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetByGroup(Guid groupId)
+    {
+        var posts = await _postService.GetByGroupAsync(groupId);
+
+        if (posts == null || !posts.Any())
+            return NotFound($"No hay publicaciones para el grupo con ID {groupId}");
+
         return Ok(posts);
     }
 }

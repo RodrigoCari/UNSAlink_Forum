@@ -7,4 +7,5 @@ public interface IPostRepository
     Task SaveChangesAsync();
     Task<IEnumerable<Post>> GetByTypeAsync(TypePost type);
     Task<IEnumerable<Post>> GetPostsByUserAsync(Guid userId);
+    Task<IEnumerable<Post>> GetByGroupAsync(Guid groupId);
 }

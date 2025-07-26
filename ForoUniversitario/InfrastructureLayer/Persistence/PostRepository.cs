@@ -40,4 +40,13 @@ public class PostRepository : IPostRepository
             .Where(p => p.AuthorId == userId)
             .ToListAsync();
     }
+    
+    public async Task<IEnumerable<Post>> GetByGroupAsync(Guid groupId)
+    {
+        return await _context.Posts
+            .Include(p => p.Comments)
+            .Where(p => p.GroupId == groupId)
+            .ToListAsync();
+    }
+
 }

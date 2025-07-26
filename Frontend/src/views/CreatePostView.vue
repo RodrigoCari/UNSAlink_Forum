@@ -73,9 +73,9 @@
   const form = reactive({
     title: '',
     content: '',
-    authorId,
+    authorId,   // <-- Aquí ya se usará el de la sesión
     groupId,
-    type: 0    // Discusion por defecto
+    type: 0
   })
 
   const isSubmitDisabled = computed(() => loading.value || !form.title.trim())

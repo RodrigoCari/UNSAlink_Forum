@@ -4,5 +4,5 @@ namespace ForoUniversitario.ApplicationLayer.Posts;
 
 public interface ICommentService
 {
-    Task AddCommentAsync(AddCommentCommand command);
+    Task AddCommentAsync(AddCommentCommand command, Guid userId);
 }

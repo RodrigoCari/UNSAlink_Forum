@@ -42,9 +42,9 @@ const router = createRouter({
       redirect: '/login',
     },
     {
-    path: '/notifications',
-    name: 'notifications',
-    component: NotificationView
+      path: '/notifications',
+      name: 'notifications',
+      component: NotificationView
     },
     {
       path: '/group/:id/create-post',
