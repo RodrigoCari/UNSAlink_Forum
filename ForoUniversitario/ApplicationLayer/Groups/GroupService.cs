@@ -1,7 +1,9 @@
 ﻿using ForoUniversitario.DomainLayer.Groups;
 using ForoUniversitario.DomainLayer.Users;
+using ForoUniversitario.DomainLayer.Posts;
 using ForoUniversitario.DomainLayer.Factories;
 using ForoUniversitario.DomainLayer.DomainServices;
+using ForoUniversitario.ApplicationLayer.Posts;
 
 namespace ForoUniversitario.ApplicationLayer.Groups;
 
@@ -11,17 +13,20 @@ public class GroupService : IGroupService
     private readonly IUserRepository _userRepository;
     private readonly IGroupFactory _groupFactory;
     private readonly IGroupDomainService _groupDomainService;
+    private readonly IPostRepository _postRepository;
 
     public GroupService(
         IGroupRepository repository,
         IUserRepository userRepository,
         IGroupFactory groupFactory,
-        IGroupDomainService groupDomainService)
+        IGroupDomainService groupDomainService,
+        IPostRepository postRepository)
     {
         _repository = repository;
         _userRepository = userRepository;
         _groupFactory = groupFactory;
         _groupDomainService = groupDomainService;
+        _postRepository = postRepository;
     }
 
     public async Task<Guid> CreateAsync(CreateGroupCommand command)
@@ -87,5 +92,36 @@ public class GroupService : IGroupService
             Description = g.Description,
             AdminId = g.AdminId
         });
+    }
+    
+    public async Task<IEnumerable<GroupDto>> GetAllWithLatestPostAsync()
+    {
+        var groups = await _repository.GetAllAsync(); // Agregado abajo si no lo tienes
+        var dtos = new List<GroupDto>();
+
+        foreach (var group in groups)
+        {
+            var posts = await _postRepository.GetByGroupAsync(group.Id);
+            var latestPost = posts.OrderByDescending(p => p.CreatedAt).FirstOrDefault(); // CAMBIO AQUÍ
+
+            dtos.Add(new GroupDto
+            {
+                Id = group.Id,
+                Name = group.Name,
+                Description = group.Description,
+                AdminId = group.AdminId,
+                LatestPost = latestPost == null ? null : new PostDto
+                {
+                    Id = latestPost.Id,
+                    Title = latestPost.Title,
+                    Content = latestPost.Content.Text,
+                    CreatedAt = latestPost.CreatedAt,
+                    AuthorId = latestPost.AuthorId,
+                    GroupId = latestPost.GroupId
+                }
+            });
+        }
+
+        return dtos;
     }
 }
