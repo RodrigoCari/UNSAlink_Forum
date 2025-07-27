@@ -59,6 +59,11 @@ public class GroupRepository : IGroupRepository
         return Task.CompletedTask;
     }
 
+    public async Task<IEnumerable<Group>> GetAllAsync()
+    {
+        return await _context.Groups.ToListAsync();
+    }
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
