@@ -12,6 +12,7 @@ public class User
     public Role Role { get; private set; }
 
     public List<Post> Posts { get; private set; } = new();
+    public List<string> Interests { get; private set; } = new();
 
     private User() { }
 
@@ -28,5 +29,10 @@ public class User
     {
         Name = name;
         Email = email;
+    }
+
+    public void UpdateInterests(List<string> interests)
+    {
+        Interests = interests;
     }
 }
