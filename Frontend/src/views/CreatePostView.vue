@@ -15,6 +15,20 @@
     <!-- Error general -->
     <div v-if="error" class="error">{{ error }}</div>
 
+    <!-- Tipo de publicación -->
+    <div class="form-group">
+      <select v-model="form.type" class="input-field">
+        <option value="QA">Pregunta / Asesoría</option>
+        <option value="EducationalContributions">Aporte educativo</option>
+        <option value="Discussion">Discusión</option>
+        <option value="News">Noticias</option>
+        <option value="Tips">Consejos</option>
+        <option value="Experiences">Experiencias</option>
+        <option value="Requests">Solicitud</option>
+        <option value="Opportunities">Oportunidades</option>
+      </select>
+    </div>
+
     <!-- Título -->
     <div class="form-group">
       <input v-model="form.title"
@@ -73,9 +87,9 @@
   const form = reactive({
     title: '',
     content: '',
-    authorId,   // <-- Aquí ya se usará el de la sesión
+    authorId,
     groupId,
-    type: 0
+    type: 'QA' // valor por defecto válido como string
   })
 
   const isSubmitDisabled = computed(() => loading.value || !form.title.trim())
