@@ -7,4 +7,5 @@ public interface IGroupService
     Task JoinAsync(Guid groupId, Guid userId);
     Task<IEnumerable<GroupDto>> SearchAsync(string name);
     Task<IEnumerable<GroupDto>> GetGroupsByUserAsync(Guid userId);
+    Task<IEnumerable<GroupDto>> GetAllWithLatestPostAsync();
 }

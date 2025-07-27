@@ -33,3 +33,14 @@ export async function fetchGroupsByUser(userId) {
   }
   return await res.json()
 }
+
+export async function fetchGroupsWithLatestPosts() {
+  const res = await fetch(`${API_BASE}/Group/with-latest-posts`, { mode: 'cors' });
+  if (!res.ok) {
+    let err;
+    try { err = (await res.json()).detail; }
+    catch { err = `Error ${res.status} obteniendo grupos con últimas publicaciones`; }
+    throw new Error(err);
+  }
+  return await res.json();
+}
