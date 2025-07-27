@@ -2,10 +2,12 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
 const username = ref('')
 const password = ref('')
 const router = useRouter()
+const userStore = useUserStore()
 
 const login = async () => {
   try {
@@ -17,10 +19,10 @@ const login = async () => {
     const token = response.data.token
     if (token) {
       const payload = JSON.parse(atob(token.split('.')[1]))
-      const userId = payload.sub // ID del usuario
+      const userId = payload.sub
 
-      localStorage.setItem('token', token)
-      localStorage.setItem('userId', userId)
+      // 👉 Usar el store en vez de localStorage directo
+      userStore.login(token, userId)
 
       router.push('/home')
     } else {
@@ -46,7 +48,9 @@ const login = async () => {
         <input type="password" placeholder="Password" v-model="password" />
       </div>
       <button class="continue-btn" @click="login">Continue</button>
-      <p class="create-account"><span class="login-link" @click="$router.push('/signup')">Create an account</span></p>
+      <p class="create-account">
+        <span class="login-link" @click="$router.push('/signup')">Create an account</span>
+      </p>
     </div>
   </div>
 </template>
@@ -81,7 +85,7 @@ const login = async () => {
 .input-group {
   display: flex;
   align-items: center;
-  background: white; /* ✅ Fondo blanco */
+  background: white;
   border: 1px solid #ccc;
   border-radius: 4px;
   margin: 0.5rem 0;
@@ -98,7 +102,7 @@ const login = async () => {
   border: none;
   outline: none;
   background: transparent;
-  color: black; /* ✅ Texto negro */
+  color: black;
   flex: 1;
   font-family: 'Montserrat', sans-serif;
 }
@@ -108,8 +112,8 @@ const login = async () => {
 }
 
 .continue-btn {
-  background-color: #000000; /* ✅ Fondo negro */
-  color: white;              /* ✅ Texto blanco */
+  background-color: #000000;
+  color: white;
   border: none;
   padding: 0.5rem;
   width: 100%;
