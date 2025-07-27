@@ -3,7 +3,7 @@
     <SearchBar />
     <div class="actions">
       <button class="icon">💬</button>
-      <button class="create-btn">+ Crear</button>
+      <button class="create-btn" @click="goToCreateGroup">+ Crear</button>
       <button class="icon">👤</button>
 
       <button
@@ -31,6 +31,10 @@ const userStore = useUserStore()
 
 const goToLogin = () => {
   router.push('/login')
+}
+
+const goToCreateGroup = () => {
+  router.push('/create-group')
 }
 
 const logout = () => {
