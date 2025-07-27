@@ -22,7 +22,7 @@
 
     <!-- Botones de interacción -->
     <div class="action-bar">
-      <button class="btn primary" @click="onCreatePost">+ Crear publicación</button>
+      <button class="btn primary" @click="onCreatePost">+ Crear</button>
       <button class="btn" :disabled="joined" @click="onJoin">
         {{ joined ? 'Ya eres miembro' : 'Unirse' }}
       </button>
@@ -42,6 +42,9 @@
             <small class="meta">
               u/{{ post.authorName || 'desconocido' }} | {{ new Date(post.createdAt).toLocaleDateString('es-ES') }}
             </small>
+            <div class="post-tag">
+              {{ formatType(post.type) }}
+            </div>
             <h3 style="margin: 0.25rem 0">{{ post.title }}</h3>
             <p class="post-content">{{ post.content }}</p>
           </div>
@@ -267,6 +270,20 @@
   function onCreatePost() {
     router.push(`/group/${id}/create-post`)
   }
+  function formatType(type) {
+    const map = {
+      0: 'Pregunta / Asesoría',
+      1: 'Aporte educativo',
+      2: 'Discusión',
+      3: 'Noticias',
+      4: 'Consejos',
+      5: 'Experiencias',
+      6: 'Solicitud',
+      7: 'Oportunidades'
+    };
+
+    return map[type] ?? 'Otro';
+  }
 </script>
 
 <style scoped>
@@ -481,5 +498,14 @@
 
   .comments-list {
     margin-top: 1rem;
+  }
+  .post-tag {
+    display: inline-block;
+    background-color: #00bcd4;
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    margin-bottom: 0.5rem;
   }
 </style>
