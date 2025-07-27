@@ -1,12 +1,17 @@
 <script setup>
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 
 const userStore = useUserStore()
+const router = useRouter()
 
 const isAuthenticated = computed(() => userStore.isAuthenticated)
 const userProfileLink = computed(() => `/user/${userStore.userId}`)
+
+const goToCreateGroup = () => {
+  router.push('/create-group')
+}
 </script>
 
 <template>
@@ -26,13 +31,12 @@ const userProfileLink = computed(() => `/user/${userStore.userId}`)
       <div class="menu-item">💬 Foros</div>
 
       <div class="menu-section">Comunidades</div>
-      <div class="menu-item">➕ Crear una comunidad</div>
+      <div class="menu-item" @click="goToCreateGroup">➕ Crear una comunidad</div>
 
       <div class="menu-section">Acerca de</div>
       <div class="menu-item">❓ Ayuda</div>
       <div class="menu-item">🛠️ Herramientas</div>
 
-      <!-- Solo si está autenticado -->
       <div v-if="isAuthenticated" class="menu-section">Mi perfil</div>
       <RouterLink
         v-if="isAuthenticated"
