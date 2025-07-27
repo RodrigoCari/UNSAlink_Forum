@@ -46,12 +46,21 @@ function goToGroup(id) {
 </script>
 
 <style scoped>
+.home-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: 'Segoe UI', sans-serif;
+  color: #222;
+}
+
 .group-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
 }
+
 .group-card {
   border: 1px solid #ccc;
   padding: 1rem;
@@ -60,6 +69,7 @@ function goToGroup(id) {
   background: #f9f9f9;
   transition: background 0.3s;
 }
+
 .group-card:hover {
   background: #f0f0f0;
 }
