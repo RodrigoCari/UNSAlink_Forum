@@ -103,6 +103,31 @@ public class PostService : IPostService
             var author = await _userRepository.GetByIdAsync(post.AuthorId);
             var group = await _groupRepository.FindAsync(post.GroupId);
 
+            PostDto? sharedPostDto = null;
+
+            if (post.SharedPostId.HasValue)
+            {
+                var sharedPost = await _postRepository.GetByIdAsync(post.SharedPostId.Value);
+                if (sharedPost != null)
+                {
+                    var sharedAuthor = await _userRepository.GetByIdAsync(sharedPost.AuthorId);
+                    var sharedGroup = await _groupRepository.FindAsync(sharedPost.GroupId);
+
+                    sharedPostDto = new PostDto
+                    {
+                        Id = sharedPost.Id,
+                        Title = sharedPost.Title,
+                        Content = sharedPost.Content.Text,
+                        AuthorId = sharedPost.AuthorId,
+                        AuthorName = sharedAuthor?.Name ?? "Unknown",
+                        GroupId = sharedPost.GroupId,
+                        GroupName = sharedGroup?.Name ?? "Unknown",
+                        Type = sharedPost.Type,
+                        CreatedAt = sharedPost.CreatedAt
+                    };
+                }
+            }
+
             result.Add(new PostDto
             {
                 Id = post.Id,
@@ -114,6 +139,7 @@ public class PostService : IPostService
                 GroupName = group?.Name ?? "Unknown",
                 Type = post.Type,
                 CreatedAt = post.CreatedAt,
+                SharedPost = sharedPostDto,
                 Comments = post.Comments.Select(c => new CommentDto
                 {
                     Id = c.Id,
@@ -156,5 +182,29 @@ public class PostService : IPostService
             CreatedAt = p.CreatedAt,
             Type = p.Type
         });
+    }
+
+    public async Task<Guid> ShareAsync(SharePostCommand command)
+    {
+        var originalPost = await _postRepository.GetByIdAsync(command.OriginalPostId);
+        if (originalPost == null)
+            throw new Exception("Post original no encontrado");
+
+        var content = new PostContent(originalPost.Content.Text);
+        var sharedPost = new Post(
+            Guid.NewGuid(),
+            command.Title,
+            content,
+            command.AuthorId,
+            command.GroupId,
+            TypePost.Shared
+        )
+        {
+            SharedPostId = command.OriginalPostId
+        };
+
+        await _postRepository.AddAsync(sharedPost);
+        await _postRepository.SaveChangesAsync();
+        return sharedPost.Id;
     }
 }

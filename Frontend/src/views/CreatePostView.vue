@@ -1,18 +1,35 @@
 <template>
   <div class="create-post-wrapper">
-    <!-- Header -->
     <div class="header">
       <button class="back-btn" @click="onCancel">←</button>
       <h2>Crear Publicación</h2>
     </div>
 
-    <!-- Grupo y Autor -->
     <div class="badges">
-      <span class="badge">Grupo: {{ groupName }}</span>
       <span class="badge">Autor: {{ authorName }}</span>
     </div>
 
-    <!-- Error general -->
+    <!-- Si es compartido -->
+    <div v-if="isSharing && originalPost" class="form-group">
+      <label class="label">Contenido original:</label>
+      <div class="original-content-preview bg-gray-100 p-3 rounded">
+        <p class="text-sm text-gray-600">{{ originalPost.content }}</p>
+      </div>
+    </div>
+
+    <!-- Grupo al que se publicará -->
+    <div class="form-group" v-if="isSharing">
+      <label class="label">Compartir en:</label>
+      <select v-model="form.groupId" class="input-field">
+        <option v-for="g in userGroups" :key="g.id" :value="g.id">{{ g.name }}</option>
+      </select>
+    </div>
+
+    <!-- Grupo fijo si no es compartido -->
+    <div class="form-group" v-else>
+      <span class="badge">Grupo: {{ groupName }}</span>
+    </div>
+
     <div v-if="error" class="error">{{ error }}</div>
 
     <!-- Tipo de publicación -->
@@ -37,94 +54,127 @@
              class="input-field" />
     </div>
 
-    <!-- Contenido -->
-    <div class="form-group">
+    <!-- Contenido solo si no es compartido -->
+    <div class="form-group" v-if="!isSharing">
       <textarea v-model="form.content"
                 placeholder="Contenido de la publicación…"
                 class="textarea-field"></textarea>
     </div>
 
-    <!-- Botones -->
     <div class="buttons">
       <button class="btn-cancel" @click="onCancel">Cancelar</button>
-
-      <button class="btn-submit"
-              v-if="isSubmitDisabled"
-              disabled
-              @click="onSubmit">
+      <button class="btn-submit" :disabled="isSubmitDisabled" @click="onSubmit">
         {{ loading ? 'Enviando…' : 'Subir' }}
-      </button>
-      <button class="btn-submit"
-              v-else
-              @click="onSubmit">
-        {{ loading ? 'Enviando…' : 'Subir' }}
-
       </button>
     </div>
   </div>
 </template>
 
 <script setup>
-  import { ref, reactive, onMounted, computed } from 'vue'
-  import { useRoute, useRouter } from 'vue-router'
-  import { fetchGroup } from '../services/groupService'
-  import { fetchUserById } from '../services/userService'
-  import { createPost } from '../services/postService'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { fetchGroup, fetchGroupsByUser } from '../services/groupService'
+import { fetchUserById } from '../services/userService'
+import { createPost, getPostById, sharePost } from '../services/postService'
+const typeMap = {
+  QA: 0,
+  EducationalContributions: 1,
+  Discussion: 2,
+  News: 3,
+  Tips: 4,
+  Experiences: 5,
+  Requests: 6,
+  Opportunities: 7,
+  Shared: 100
+};
+const route = useRoute()
+const router = useRouter()
 
-  const route = useRoute()
-  const router = useRouter()
-  const groupId = route.params.id
+const routeGroupId = route.params.id
+const originalPostId = route.query.originalPostId || null
+const isSharing = !!originalPostId
 
-  const groupName = ref('…')
+const token = localStorage.getItem('token')
+const authorId = localStorage.getItem('userId')
 
-  const token = localStorage.getItem('token')
-  const authorId = localStorage.getItem('userId')
+const groupName = ref('…')
+const authorName = ref('…')
+const originalPost = ref(null)
+const userGroups = ref([])
+const error = ref('')
+const loading = ref(false)
 
-  const authorName = ref('…')
-  const error = ref('')
-  const loading = ref(false)
+const form = reactive({
+  title: '',
+  content: '',
+  authorId,
+  groupId: isSharing ? '' : routeGroupId,
+  type: 'QA'
+})
 
-  const form = reactive({
-    title: '',
-    content: '',
-    authorId,
-    groupId,
-    type: 'QA' // valor por defecto válido como string
-  })
+const isSubmitDisabled = computed(() => loading.value || !form.title.trim())
 
-  const isSubmitDisabled = computed(() => loading.value || !form.title.trim())
+onMounted(async () => {
+  try {
+    const u = await fetchUserById(authorId)
+    authorName.value = u.name
+  } catch {
+    authorName.value = '—desconocido—'
+  }
 
-  onMounted(async () => {
+  if (isSharing) {
     try {
-      const g = await fetchGroup(groupId)
+      const data = await getPostById(originalPostId)
+      originalPost.value = data
+      form.content = data.content
+    } catch {
+      error.value = 'Error al cargar el post original'
+    }
+
+    try {
+      const res = await fetchGroupsByUser(authorId)
+      userGroups.value = res
+      if (res.length > 0) form.groupId = res[0].id
+    } catch {
+      error.value = 'No se pudieron cargar los grupos'
+    }
+  } else {
+    try {
+      const g = await fetchGroup(routeGroupId)
       groupName.value = g.name
     } catch {
       groupName.value = '—desconocido—'
     }
-    try {
-      const u = await fetchUserById(authorId)
-      authorName.value = u.name
-    } catch {
-      authorName.value = '—desconocido—'
-    }
-  })
+  }
+})
 
-  async function onSubmit() {
-    error.value = ''
-    loading.value = true
-    try {
+async function onSubmit() {
+  error.value = ''
+  loading.value = true
+  try {
+    if (isSharing) {
+      await sharePost({
+        originalPostId,
+        authorId,
+        groupId: form.groupId,
+        title: form.title,
+        content: form.content,
+        type: typeMap[form.type] ?? 0
+      })
+    } else {
       await createPost(form)
-      router.push(`/group/${groupId}`)
-    } catch (e) {
-      error.value = e.message
-    } finally {
-      loading.value = false
     }
+    router.push(`/group/${form.groupId}`)
+  } catch (e) {
+    error.value = `Error al compartir publicación: ${e.message}`
+  } finally {
+    loading.value = false
   }
+}
 
-  function onCancel() {
-    router.back()
-  }
+function onCancel() {
+  router.back()
+}
 </script>
 
 <style scoped>

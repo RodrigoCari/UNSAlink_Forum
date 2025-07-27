@@ -9,5 +9,6 @@ public enum TypePost
     Tips,
     Experiences,
     Requests,
-    Opportunities
+    Opportunities,
+    Shared = 100
 }

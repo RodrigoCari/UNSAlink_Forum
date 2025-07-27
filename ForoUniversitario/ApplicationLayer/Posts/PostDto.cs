@@ -17,4 +17,5 @@ public class PostDto
     public TypePost Type { get; set; }
     public DateTime CreatedAt { get; set; }
     public List<CommentDto> Comments { get; set; } = new();
+    public PostDto? SharedPost { get; set; }
 }
