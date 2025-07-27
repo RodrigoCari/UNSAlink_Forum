@@ -1,18 +1,63 @@
+<script setup>
+import { ref } from 'vue'
+import { getUserProfile, updateUserProfile } from '@/services/userService'
+
+const selected = ref(new Set())
+
+const interests = [
+  { icon: '🎨', label: 'ART' },
+  { icon: '✏', label: 'DRAW' },
+  { icon: '🌐', label: 'CONECTIVITY' },
+  { icon: '📰', label: 'NEWS' },
+  { icon: '💰', label: 'JOB MARKET' },
+  { icon: '🔍', label: 'SEARCHING' }
+]
+
+const toggleInterest = (label) => {
+  if (selected.value.has(label)) selected.value.delete(label)
+  else selected.value.add(label)
+}
+
+const continueToHome = async () => {
+  const token = localStorage.getItem('token')
+  const userId = localStorage.getItem('userId')
+
+  try {
+    const currentProfile = await getUserProfile(userId, token)
+
+    await updateUserProfile(userId, {
+      name: currentProfile.name,
+      email: currentProfile.email,
+      interests: Array.from(selected.value)
+    }, token)
+
+    alert('Intereses guardados')
+    window.location.href = '/home'
+  } catch (e) {
+    alert('Error al guardar intereses')
+    console.error(e)
+  }
+}
+</script>
+
 <template>
   <div class="interests-container">
     <h1>Intereses</h1>
     <p>Elige que temas te gustaría ver en tu feed principal.</p>
 
     <div class="cards-grid">
-      <div class="card"><span class="icon">🎨</span> ART</div>
-      <div class="card"><span class="icon">✏</span> DRAW</div>
-      <div class="card"><span class="icon">🌐</span> CONECTIVITY</div>
-      <div class="card"><span class="icon">📰</span> NEWS</div>
-      <div class="card"><span class="icon">💰</span> JOB MARKET</div>
-      <div class="card"><span class="icon">🔍</span> SEARCHING</div>
+      <div
+        class="card"
+        v-for="interest in interests"
+        :key="interest.label"
+        :class="{ selected: selected.has(interest.label) }"
+        @click="toggleInterest(interest.label)"
+      >
+        <span class="icon">{{ interest.icon }}</span> {{ interest.label }}
+      </div>
     </div>
-    
-    <button class="continue-btn" @click="$router.push('/home')">Continuar</button>
+
+    <button class="continue-btn" @click="continueToHome">Continuar</button>
   </div>
 </template>
 
@@ -69,5 +114,10 @@ p {
   font-weight: 600;
   font-family: 'Montserrat', sans-serif;
   width: 100%;
+}
+
+.card.selected {
+  background-color: #333;
+  border: 2px solid #fff;
 }
 </style>
