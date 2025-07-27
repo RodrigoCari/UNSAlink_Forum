@@ -51,6 +51,13 @@ public class GroupController : ControllerBase
         return Ok(dtos);
     }
 
+    [HttpGet("with-latest-posts")]
+    public async Task<IActionResult> GetAllWithLatestPosts()
+    {
+        var groups = await _groupService.GetAllWithLatestPostAsync();
+        return Ok(groups);
+    }
+
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetGroupsByUser(Guid userId)
     {
