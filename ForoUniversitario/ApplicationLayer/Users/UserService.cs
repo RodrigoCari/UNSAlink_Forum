@@ -31,6 +31,7 @@ public class UserService : IUserService
         if (user == null) throw new Exception("User not found");
 
         user.UpdateProfile(command.Name, command.Email);
+        user.UpdateInterests(command.Interests);
         await _repository.ModifyAsync(user);
     }
 
@@ -42,7 +43,8 @@ public class UserService : IUserService
             Id = user.Id,
             Name = user.Name,
             Email = user.Email,
-            Role = user.Role.ToString()
+            Role = user.Role.ToString(),
+            Interests = user.Interests
         };
     }
 
