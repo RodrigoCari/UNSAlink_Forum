@@ -51,7 +51,7 @@
           <div class="post-actions">
             <button class="icon-btn">⬆️</button>
             <button class="icon-btn" @click="() => (activePostId = post.id)">💬</button>
-            <button class="icon-btn">🔗</button>
+            <button class="icon-btn" @click="() => sharePost(post.id)">🔗 Compartir</button>
           </div>
 
           <!-- Caja de comentario -->
@@ -283,6 +283,12 @@
     };
 
     return map[type] ?? 'Otro';
+  }
+  function sharePost(postId) {
+    router.push({
+      path: `/group/${id}/create-post`,
+      query: { originalPostId: postId }
+    })
   }
 </script>
 

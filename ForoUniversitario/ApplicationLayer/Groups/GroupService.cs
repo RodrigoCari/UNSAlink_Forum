@@ -93,16 +93,16 @@ public class GroupService : IGroupService
             AdminId = g.AdminId
         });
     }
-    
+
     public async Task<IEnumerable<GroupDto>> GetAllWithLatestPostAsync()
     {
-        var groups = await _repository.GetAllAsync(); // Agregado abajo si no lo tienes
+        var groups = await _repository.GetAllAsync();
         var dtos = new List<GroupDto>();
 
         foreach (var group in groups)
         {
             var posts = await _postRepository.GetByGroupAsync(group.Id);
-            var latestPost = posts.OrderByDescending(p => p.CreatedAt).FirstOrDefault(); // CAMBIO AQUÍ
+            var latestPost = posts.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
 
             dtos.Add(new GroupDto
             {
@@ -114,7 +114,9 @@ public class GroupService : IGroupService
                 {
                     Id = latestPost.Id,
                     Title = latestPost.Title,
-                    Content = latestPost.Content.Text,
+                    Content = latestPost.Type == TypePost.Shared && latestPost.SharedPost != null
+                        ? latestPost.SharedPost.Content.Text
+                        : latestPost.Content.Text,
                     CreatedAt = latestPost.CreatedAt,
                     AuthorId = latestPost.AuthorId,
                     GroupId = latestPost.GroupId

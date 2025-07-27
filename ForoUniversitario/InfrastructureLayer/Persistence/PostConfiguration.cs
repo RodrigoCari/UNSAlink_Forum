@@ -46,5 +46,13 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
                .WithMany(g => g.Posts)
                .HasForeignKey(p => p.GroupId)
                .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Property(p => p.SharedPostId)
+       .IsRequired(false);
+
+        builder.HasOne(p => p.SharedPost)
+               .WithMany()
+               .HasForeignKey(p => p.SharedPostId)
+               .OnDelete(DeleteBehavior.Restrict);
     }
 }
