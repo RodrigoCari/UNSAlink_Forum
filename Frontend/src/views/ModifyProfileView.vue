@@ -9,7 +9,9 @@
     <!-- Línea 2 -->
     <div class="subheader">
       <span class="bold-text">Perfil:</span>
-      <span class="normal-text"> Agrega información adicional para mayor interacción profesional</span>
+      <span class="normal-text">
+        Agrega información adicional para mayor interacción profesional
+      </span>
     </div>
 
     <!-- Línea 3 -->
@@ -21,12 +23,36 @@
     <div class="form-cards">
       <div class="card">
         <label for="displayName">Nombre para mostrar</label>
-        <input type="text" id="displayName" v-model="profile.name" placeholder="Tu nombre visible" />
+        <input
+          type="text"
+          id="displayName"
+          v-model="profile.name"
+          placeholder="Tu nombre visible"
+        />
       </div>
 
       <div class="card">
         <label for="email">Email</label>
-        <input type="email" id="email" v-model="profile.email" placeholder="ejemplo@correo.com" />
+        <input
+          type="email"
+          id="email"
+          v-model="profile.email"
+          placeholder="ejemplo@correo.com"
+        />
+      </div>
+
+      <div class="card">
+        <label>Intereses</label>
+        <div class="interest-options">
+          <label v-for="item in allInterests" :key="item" class="checkbox-label">
+            <input
+              type="checkbox"
+              :value="item"
+              v-model="profile.interests"
+            />
+            {{ item }}
+          </label>
+        </div>
       </div>
 
       <div class="card">
@@ -40,9 +66,20 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
+// Lista de intereses disponibles
+const allInterests = [
+  'ART',
+  'DRAW',
+  'CONECTIVITY',
+  'NEWS',
+  'JOB MARKET',
+  'SEARCHING'
+]
+
 const profile = ref({
   name: '',
   email: '',
+  interests: []
 })
 
 // Extraer token y userId desde localStorage
@@ -60,7 +97,11 @@ const axiosConfig = {
 const fetchProfile = async () => {
   try {
     const res = await axios.get(`https://localhost:44329/api/User/${userId}`, axiosConfig)
-    profile.value = res.data
+    profile.value = {
+      name: res.data.name,
+      email: res.data.email,
+      interests: res.data.interests || []
+    }
   } catch (err) {
     console.error('Error al obtener perfil:', err)
     alert('No se pudo cargar el perfil')
@@ -72,7 +113,8 @@ const updateProfile = async () => {
   try {
     await axios.put(`https://localhost:44329/api/User/${userId}`, {
       name: profile.value.name,
-      email: profile.value.email
+      email: profile.value.email,
+      interests: profile.value.interests
     }, axiosConfig)
     alert('Perfil actualizado correctamente')
   } catch (err) {
@@ -168,5 +210,18 @@ onMounted(fetchProfile)
 
 .card button:hover {
   background-color: #3730a3;
+}
+
+.interest-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
 }
 </style>
