@@ -20,5 +20,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                .WithOne(p => p.Author)
                .HasForeignKey(p => p.AuthorId)
                .OnDelete(DeleteBehavior.Cascade); // Posts se eliminan si se borra el usuario
+        
+        builder.Property(u => u.Interests)
+               .HasConversion(
+                   v => string.Join(';', v),
+                   v => v.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList()
+               )
+               .HasColumnName("Interests");
     }
 }
