@@ -50,3 +50,47 @@ export async function addComment(postId, content) {
     });
     if (!res.ok) throw new Error('Error al comentar');
 }
+
+export async function getPostById(postId) {
+  const res = await fetch(`${API_BASE}/Post/${postId}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Error al obtener post original: ${errorText}`);
+  }
+
+  return await res.json();
+}
+
+export async function sharePost({ title, groupId, originalPostId, content, type }) {
+  const token = localStorage.getItem('token');
+  const authorId = localStorage.getItem('userId');
+
+  const payload = {
+    title,
+    groupId,
+    originalPostId,
+    content,
+    type,
+    authorId
+  };
+
+  const res = await fetch(`${API_BASE}/Post/share`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Error al compartir publicación: ${errorText}`);
+  }
+
+  return await res.json();
+}

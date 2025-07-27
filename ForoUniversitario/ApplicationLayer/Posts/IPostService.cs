@@ -9,5 +9,6 @@
         Task RequestIdeasAsync(Guid postId);
         Task<IEnumerable<PostDto>> GetPostsByUserAsync(Guid userId);
         Task<IEnumerable<PostDto>> GetByGroupAsync(Guid groupId);
+        Task<Guid> ShareAsync(SharePostCommand command);
     }
 }

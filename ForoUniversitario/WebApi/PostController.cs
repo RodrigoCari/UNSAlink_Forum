@@ -104,4 +104,21 @@ public class PostController : ControllerBase
 
         return Ok(posts);
     }
+
+    [HttpPost("share")]
+    public async Task<IActionResult> Share([FromBody] SharePostCommand command)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            var id = await _postService.ShareAsync(command);
+            return CreatedAtAction(nameof(GetById), new { id }, null);
+        }
+        catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
 }
