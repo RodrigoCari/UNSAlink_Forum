@@ -1,5 +1,21 @@
 const API_BASE = import.meta.env.VITE_API_BASE || 'https://localhost:44329/api';
 
+export async function createGroup({ name, description, adminId }) {
+  if (!adminId) throw new Error('adminId es requerido para crear el grupo');
+  const res = await fetch(`${API_BASE}/Group`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, description, adminId })
+  });
+  if (!res.ok) {
+    let errorMsg;
+    try { errorMsg = (await res.json()).detail; }
+    catch { errorMsg = `Error ${res.status} al crear grupo`; }
+    throw new Error(errorMsg);
+  }
+  return await res.json();
+}
+
 export async function fetchGroup(id) {
   const res = await fetch(`${API_BASE}/Group/${id}`, { mode: 'cors' });
   if (!res.ok) {
