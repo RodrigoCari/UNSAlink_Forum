@@ -2,12 +2,14 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
 const username = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const router = useRouter()
+const userStore = useUserStore()
 
 const isEmailValid = (email) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
@@ -39,15 +41,31 @@ const register = async () => {
   }
 
   try {
-    const response = await axios.post('https://localhost:44329/api/user', {
+    // Registrar usuario
+    await axios.post('https://localhost:44329/api/user', {
       name: username.value.trim(),
       email: email.value.trim(),
       password: password.value.trim(),
       role: 0
     })
 
-    console.log('Usuario registrado:', response)
-    router.push('/interests')
+    // Iniciar sesión automáticamente
+    const loginRes = await axios.post('https://localhost:44329/api/User/login', {
+      name: username.value.trim(),
+      password: password.value.trim()
+    })
+
+    const token = loginRes.data.token
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      const userId = payload.sub
+
+      userStore.login(token, userId) // Actualiza el store
+
+      router.push('/interests') // Redirige después del login automático
+    } else {
+      alert('Registro exitoso, pero no se pudo iniciar sesión automáticamente.')
+    }
   } catch (error) {
     console.error('Error al registrar usuario:', error.response?.data || error.message)
     alert('Error al registrarse. Verifica los datos e intenta nuevamente.')
