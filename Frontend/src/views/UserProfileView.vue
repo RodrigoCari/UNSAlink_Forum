@@ -27,6 +27,10 @@
         <label>Email</label>
         <div class="readonly-text">{{ user.email }}</div>
       </div>
+      <div class="card" v-if="user?.interests?.length">
+        <label>Intereses</label>
+        <div class="readonly-text">{{ user.interests.join(', ') }}</div>
+      </div>
     </div>
 
     <div v-else-if="error" class="error-message">
