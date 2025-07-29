@@ -36,6 +36,8 @@
 
 ## 1. Propósito del Proyecto
 
+---
+
 ## Contexto
 
 UNSAlink nace con la intención de mejorar la interacción entre estudiantes, docentes y egresados de la Universidad Nacional de San Agustín, brindando un entorno digital seguro para el intercambio de conocimientos, oportunidades y recursos.
@@ -72,9 +74,13 @@ Nuestra propuesta consiste en desarrollar una solución digital moderna y funcio
 
 ## 2. Funcionalidades
 
+---
+
 ### 2.1 Diagrama de Casos de Uso (UML)
 
 ![Diagrama de Casos de Uso](diagrams/DiagramadeCasosdeUso.PNG)
+
+---
 
 ### 2.2 Prototipo / GUI
 
@@ -96,7 +102,11 @@ https://www.figma.com/design/cyspGkz0LOdwwIw2VNx517/UNSAlink?node-id=0-1&p=f&t=p
 
 ## 5. Prácticas de Desarrollo Aplicadas
 
+---
+
 ### 5.1 Estilos de Programación
+
+---
 
 #### Persistent Tables
 
@@ -340,7 +350,11 @@ Esta clase representa una *cosa* con estado interno y operaciones que modifican 
 
 ### 5.2 Convenciones de Codificación
 
+---
+
 #### Parte I: Backend en C#
+
+---
 
 **Nombres de interfaces: PascalCase con prefijo `I`**
 
@@ -750,6 +764,8 @@ Beneficio: Refuerza la arquitectura en capas y mejora la navegación del proyect
 
 #### Parte II: Frontend en JavaScript / Vue.js
 
+---
+
 **Uso de ES Modules y sintaxis moderna (`import/export`)**
 
 Práctica: Importar y exportar componentes y dependencias usando `import/export` en lugar de `require/module.exports`.
@@ -907,8 +923,184 @@ src/
 
 ---
 
-
 ### 5.3 Código Limpio (Clean Code)
+
+---
+
+#### Nombres
+
+**Principio**  
+Los nombres deben ser significativos y expresar claramente su intención.  
+
+**Aplicación en código:**  
+- Clases: GroupService, PostService, GroupRepository.
+- Métodos: CreateAsync, GetByIdAsync, SearchByNameAsync.
+- Variables/Parámetros: _repository, _userRepository, command, groupId.
+
+```csharp
+// ApplicationLayer/Groups/GroupService.cs
+public class GroupService : IGroupService
+{
+    private readonly IGroupRepository _repository;
+    private readonly IUserRepository  _userRepository;
+    // …
+
+    public async Task<Guid> CreateAsync(CreateGroupCommand command)
+    {
+        var admin = await _userRepository.GetByIdAsync(command.AdminId);
+        // …
+    }
+}
+````
+
+---
+
+#### Funciones
+
+**Principio:**  
+Cada función debe hacer una sola cosa y mantenerse en un nivel de abstracción uniforme.
+
+**Aplicación en código:**  
+- CreateAsync solo orquesta: valida, crea la entidad y persiste.
+- GetByIdAsync solo recupera y mapea a DTO.
+
+```csharp
+// ApplicationLayer/Groups/GroupService.cs
+public async Task<GroupDto?> GetByIdAsync(Guid id)
+{
+    var group = await _repository.FindAsync(id);
+    if (group == null) return null;
+
+    return new GroupDto
+    {
+        Id          = group.Id,
+        Name        = group.Name,
+        Description = group.Description,
+        AdminId     = group.AdminId
+    };
+}
+```
+
+---
+
+#### Comentarios
+
+**Principio:**  
+Los comentarios deben explicar por qué, no qué.
+
+**Aplicación en código:**  
+- En GroupRepository, se señala la razón de un método placeholder:
+
+```csharp
+// InfrastructureLayer/Persistence/GroupRepository.cs
+public Task JoinAsync(Guid groupId, Guid userId)
+{
+    // Placeholder logic – no DB update without join table
+    Console.WriteLine($"User {userId} joined group {groupId}.");
+    return Task.CompletedTask;
+}
+```
+
+Este comentario aclara el por qué ese método no altera la base de datos.
+
+---
+
+#### Objetos / Estructura de Datos
+
+**Principio:**  
+Usa DTOs para separar la lógica de dominio de la transferencia de datos.
+
+**Aplicación en código:**  
+- Comando de entrada: CreateGroupCommand.
+- DTO de salida: GroupDto.
+
+```csharp
+// ApplicationLayer/Groups/Commands/CreateGroupCommand.cs
+public class CreateGroupCommand
+{
+    public string Name        { get; init; }
+    public string Description { get; init; }
+    public Guid   AdminId     { get; init; }
+}
+```
+```csharp
+// ApplicationLayer/Groups/Dtos/GroupDto.cs
+public class GroupDto
+{
+    public Guid   Id          { get; init; }
+    public string Name        { get; init; }
+    public string Description { get; init; }
+    public Guid   AdminId     { get; init; }
+}
+```
+
+---
+
+#### Tratamiento de Errores
+
+**Principio:**  
+Falla rápido con excepciones específicas y mensajes claros.
+
+**Aplicación en código:**  
+- En los métodos de servicio:
+
+```csharp
+// ApplicationLayer/Groups/GroupService.cs
+public async Task<Guid> CreateAsync(CreateGroupCommand command)
+{
+    var admin = await _userRepository.GetByIdAsync(command.AdminId)
+                ?? throw new InvalidOperationException("Admin user not found.");
+
+    // …
+}
+
+public async Task JoinAsync(Guid groupId, Guid userId)
+{
+    var user  = await _userRepository.GetByIdAsync(userId);
+    var group = await _repository.FindAsync(groupId);
+
+    if (user == null || group == null)
+        throw new InvalidOperationException("Group or user not found.");
+
+    await _groupDomainService.AddMemberAsync(group, user);
+    await _repository.SaveChangesAsync();
+}
+```
+
+---
+
+#### Clases
+
+**Principio:**  
+Cada clase debe tener una única responsabilidad y no mezclar capas.
+
+**Aplicación en código:**  
+- GroupService exclusivamente maneja lógica de negocio de grupos.
+- GroupRepository solo accede a la persistencia.
+- GroupController solo expone la API HTTP.
+
+```csharp
+// WebApi/Controllers/GroupController.cs
+[ApiController]
+[Route("api/[controller]")]
+public class GroupController : ControllerBase
+{
+    private readonly IGroupService _groupService;
+
+    public GroupController(IGroupService groupService) =>
+        _groupService = groupService;
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateGroupCommand command)
+    {
+        var id = await _groupService.CreateAsync(command);
+        return CreatedAtAction(nameof(GetById), new { id }, null);
+    }
+    // …
+}
+```
+
+---
 
 ### 5.4 Principios SOLID
 
