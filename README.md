@@ -1,10 +1,14 @@
 # UNSAlink
 
+---
+
 ## Integrantes
 - Jair David Torres Barra
 - Jose Rodrigo Cari Almiron
 - Alex Enrique Cañapataña Vargas
 - Jesus Salvador Quinteros Condori
+
+---
 
 # Índice
 
@@ -31,43 +35,6 @@
 ---
 
 ## 1. Propósito del Proyecto
-
-## 2. Funcionalidades
-
-### 2.1 Diagrama de Casos de Uso (UML)
-
-### 2.2 Prototipo / GUI
-
-## 3. Modelo de Dominio: Diagrama de Clases + Módulos
-
-## 4. Visión General de Arquitectura: DDD y Clean Architecture + Diagrama de Paquetes + Clases
-
-## 5. Prácticas de Desarrollo Aplicadas
-
-### 5.1 Estilos de Programación
-
-### 5.2 Convenciones de Codificación
-
-### 5.3 Código Limpio (Clean Code)
-
-### 5.4 Principios SOLID
-
-### 5.5 Domain-driven Design (DDD) / Clean Architecture
-
-#### 5.5.1 Entidades, Objetos de Valor y Servicios de Dominio
-
-#### 5.5.2 Agregados y Módulos
-
-#### 5.5.3 Fábricas
-
-#### 5.5.4 Repositorios
-
-#### 5.5.5 Arquitectura en Capas
-
-## 6. Gestión de Proyecto
-
-### 6.1 Tablero de Trello
-
 
 ## Contexto
 
@@ -101,29 +68,64 @@ Nuestra propuesta consiste en desarrollar una solución digital moderna y funcio
 - Fortalecimiento del sentido de comunidad dentro de la UNSA.
 - Fomento del aprendizaje colaborativo.
 
-## Impacto Social
+---
 
-Este proyecto busca empoderar a los estudiantes creando un espacio inclusivo y accesible que reduzca la brecha digital y promueva la participación activa en la vida universitaria.
+## 2. Funcionalidades
 
-## 🎯 Funcionalidades de Alto Nivel (Diagrama de Casos de Uso)
+### 2.1 Diagrama de Casos de Uso (UML)
 
 ![Diagrama de Casos de Uso](diagrams/DiagramadeCasosdeUso.PNG)
 
-## ✨ Prototipo (o GUI)
+### 2.2 Prototipo / GUI
 
 https://www.figma.com/design/cyspGkz0LOdwwIw2VNx517/UNSAlink?node-id=0-1&p=f&t=pSsgq7EzpiadQgGR-0
 
-## 📚 Modelo de Dominio: Diagrama de Clases + Módulos
+---
+
+## 3. Modelo de Dominio: Diagrama de Clases + Módulos
 
 ![Diagrama de Clases](diagrams/DiagramaDeClases.png)
 
-## 📚 Vista General de Arquitetura: Diagrama de Paquetes + Clases
+---
+
+## 4. Visión General de Arquitectura: DDD y Clean Architecture + Diagrama de Paquetes + Clases
 
 ![Vista General de Arquitectura](diagrams/VistaGeneraldeArquitectura.png)
 
-## ✨ Trello
+---
+
+## 5. Prácticas de Desarrollo Aplicadas
+
+### 5.1 Estilos de Programación
+
+### 5.2 Convenciones de Codificación
+
+### 5.3 Código Limpio (Clean Code)
+
+### 5.4 Principios SOLID
+
+### 5.5 Domain-driven Design (DDD) / Clean Architecture
+
+#### 5.5.1 Entidades, Objetos de Valor y Servicios de Dominio
+
+#### 5.5.2 Agregados y Módulos
+
+#### 5.5.3 Fábricas
+
+#### 5.5.4 Repositorios
+
+#### 5.5.5 Arquitectura en Capas
+
+---
+
+## 6. Gestión de Proyecto
+
+### 6.1 Tablero de Trello
 
 https://trello.com/b/asrftQrL/unsalink
+
+
+---
 
 ## 🔍 Interfaz Gráfica para la Exploración y Prueba de Endpoints de la API (Swagger UI)
 
