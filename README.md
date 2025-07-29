@@ -1104,6 +1104,170 @@ public class GroupController : ControllerBase
 
 ### 5.4 Principios SOLID
 
+---
+
+#### Single Responsibility Principle (SRP)
+
+**Principio:**  
+Una clase tiene una sola razón para cambiar.
+
+**Aplicación en código:**  
+- `GroupService` sólo orquesta la creación, búsqueda y unión de grupos.
+- `GroupRepository` sólo persiste y recupera objetos `Group`.
+- `GroupController` sólo maneja las rutas HTTP.
+
+```csharp
+// ApplicationLayer/Groups/GroupService.cs
+public class GroupService : IGroupService
+{
+    private readonly IGroupRepository _repository;
+    private readonly IUserRepository  _userRepository;
+    private readonly IGroupFactory    _groupFactory;
+    private readonly IGroupDomainService _groupDomainService;
+
+    public GroupService(
+        IGroupRepository repository,
+        IUserRepository  userRepository,
+        IGroupFactory    groupFactory,
+        IGroupDomainService groupDomainService)
+    {
+        _repository         = repository;
+        _userRepository     = userRepository;
+        _groupFactory       = groupFactory;
+        _groupDomainService = groupDomainService;
+    }
+
+    public async Task<Guid> CreateAsync(CreateGroupCommand command)
+    {
+        // sólo lógica de negocio de grupos
+        var admin = await _userRepository.GetByIdAsync(command.AdminId)
+                    ?? throw new InvalidOperationException("Admin user not found.");
+        var group = _groupFactory.Create(command.Name, command.Description, admin);
+        await _repository.CreateAsync(group);
+        await _repository.SaveChangesAsync();
+        return group.Id;
+    }
+    // resto de métodos de negocio...
+}
+```
+
+---
+
+#### Open/Closed Principle (OCP)
+
+**Principio:**  
+Abierto para extensión, cerrado para modificación.
+
+**Aplicación en código:**  
+- `GroupService` depende de las interfaces `IGroupRepository`, `IUserRepository`, etc.
+- Se puede añadir otra implementación de repositorio sin tocar `GroupService`.
+
+```csharp
+// InfrastructureLayer/Persistence/GroupRepository.cs
+public class GroupRepository : IGroupRepository
+{
+    private readonly ForumDbContext _context;
+
+    public GroupRepository(ForumDbContext context) => _context = context;
+
+    public async Task CreateAsync(Group group) =>
+        await _context.Set<Group>().AddAsync(group);
+
+    public async Task<Group?> FindAsync(Guid groupId) =>
+        await _context.Set<Group>().FindAsync(groupId);
+
+    public async Task SaveChangesAsync() =>
+        await _context.SaveChangesAsync();
+
+    // Métodos adicionales…
+}
+```
+
+---
+
+#### Liskov Substitution Principle (LSP)
+
+**Principio:**  
+Instancias de una subclase reemplazan a su superclase sin alterar el comportamiento.
+
+**Aplicación en código:**  
+- Cualquier clase que implemente `IGroupRepository` (incluido `GroupRepository`) funciona con `GroupService` o `GroupController` sin cambios.
+
+```csharp
+// WebApi/Controllers/GroupController.cs
+[ApiController]
+[Route("api/[controller]")]
+public class GroupController : ControllerBase
+{
+    private readonly IGroupService _groupService;
+
+    public GroupController(IGroupService groupService) =>
+        _groupService = groupService;
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateGroupCommand command)
+    {
+        var id = await _groupService.CreateAsync(command);
+        return CreatedAtAction(nameof(GetById), new { id }, null);
+    }
+    // Métodos HTTP adicionales…
+}
+```
+
+---
+
+#### Interface Segregation Principle (ISP)
+
+**Principio:**  
+No obligar a un cliente a depender de métodos que no usa.
+
+**Aplicación en código:**  
+- `IGroupRepository` sólo declara métodos para grupos.
+- `IPostRepository` sólo métodos para posts; ninguna interfaz mezcla ambas responsabilidades.
+
+```csharp
+// DomainLayer/Groups/IGroupRepository.cs
+public interface IGroupRepository
+{
+    Task CreateAsync(Group group);
+    Task DeleteAsync(Guid groupId);
+    Task<Group?> FindAsync(Guid groupId);
+    Task<IEnumerable<Group>> SearchByNameAsync(string name);
+    Task JoinAsync(Guid groupId, Guid userId);
+    Task LeaveAsync(Guid groupId, Guid userId);
+    Task<IEnumerable<Group>> GetGroupsByMemberAsync(Guid userId);
+    Task SaveChangesAsync();
+}
+```
+
+---
+
+#### Dependency Inversion Principle (DIP)
+
+**Principio:**  
+Depender de abstracciones, no de detalles concretos.
+
+**Aplicación en código:**  
+- `GroupService` recibe en su constructor las interfaces en lugar de clases concretas.
+- Todo el flujo de negocio opera sobre abstracciones, no sobre `ForumDbContext` directamente.
+
+```csharp
+// ApplicationLayer/Groups/GroupService.cs (constructor)
+public GroupService(
+    IGroupRepository         repository,
+    IUserRepository          userRepository,
+    IGroupFactory            groupFactory,
+    IGroupDomainService      groupDomainService)
+{
+    _repository         = repository;
+    _userRepository     = userRepository;
+    _groupFactory       = groupFactory;
+    _groupDomainService = groupDomainService;
+}
+```
+
+---
+
 ### 5.5 Domain-driven Design (DDD) / Clean Architecture
 
 #### 5.5.1 Entidades, Objetos de Valor y Servicios de Dominio
