@@ -199,13 +199,13 @@ public class UserRepository : IUserRepository
 
 #### RESTful
 
-**Descripción**
+**Descripción**  
 El estilo *RESTful* se basa en el protocolo HTTP y sus métodos (GET, POST, PUT, DELETE) para definir operaciones sobre recursos. Los controladores siguen convenciones claras tanto en URL como en el uso de verbos HTTP.
 
-**Aplicación**
+**Aplicación**  
 El controlador `UserController` expone endpoints RESTful para gestionar los usuarios.
 
-**Fragmento de Código**
+**Fragmento de Código**  
 
 **Controlador (`UserController.cs`)**
 
@@ -294,13 +294,13 @@ const login = async () => {
 
 #### Things
 
-**Descripción**
+**Descripción**  
 Este estilo se centra en la representación explícita de entidades como "cosas" con atributos y comportamientos encapsulados. Las entidades deben tener coherencia interna y una clara identidad en el dominio.
 
-**Aplicación**
+**Aplicación**  
 La clase `User` es un ejemplo de una "cosa" del dominio, con identidad, atributos y comportamiento encapsulado.
 
-**Fragmento de Código**
+**Fragmento de Código**  
 
 **Entidad (`User.cs`)**
 
