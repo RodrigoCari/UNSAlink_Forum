@@ -1419,6 +1419,7 @@ Cada capa **depende solo de capas internas**, cumpliendo así con los principios
 
 https://trello.com/b/asrftQrL/unsalink
 
+![Trello Project Screenshot](diagrams/TrelloProjectScreenshot.png)
 
 ---
 
