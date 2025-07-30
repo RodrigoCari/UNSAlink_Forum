@@ -1270,15 +1270,146 @@ public GroupService(
 
 ### 5.5 Domain-driven Design (DDD) / Clean Architecture
 
+El proyecto **ForoUniversitario** sigue los principios de **Domain-driven Design (DDD)** y se estructura utilizando una **arquitectura en capas limpia**, lo cual facilita el mantenimiento, la escalabilidad y la separación clara de responsabilidades. A continuación, se detalla cómo se implementan los principales patrones y conceptos de DDD:
+
+---
+
+<details>
+<summary>📁 <code>ForoUniversitario/</code> - Estructura del proyecto</summary>
+
+```
+📁 ApplicationLayer/
+ ├── 📁 Groups/
+ │    ├── 📄 CreateGroupCommand.cs  
+ │    ├── 📄 GroupDto.cs  
+ │    ├── 📄 GroupService.cs  
+ │    └── 📄 IGroupService.cs  
+ ├── 📁 Notifications/
+ │    ├── 📄 INotificationService.cs  
+ │    ├── 📄 NotificationDto.cs  
+ │    ├── 📄 NotificationService.cs  
+ │    └── 📄 SendNotificationCommand.cs  
+ ├── 📁 Posts/
+ │    ├── 📄 AddCommentCommand.cs  
+ │    ├── 📄 CommentDto.cs  
+ │    ├── 📄 CommentService.cs  
+ │    ├── 📄 CreatePostCommand.cs  
+ │    ├── 📄 ICommentService.cs  
+ │    ├── 📄 IPostService.cs  
+ │    ├── 📄 PostDto.cs  
+ │    └── 📄 PostService.cs  
+ └── 📁 Users/
+      ├── 📄 IUserService.cs  
+      ├── 📄 LoginUserCommand.cs  
+      ├── 📄 RegisterUserCommand.cs  
+      ├── 📄 UpdateUserProfileCommand.cs  
+      ├── 📄 UserDto.cs  
+      └── 📄 UserService.cs  
+
+📁 DomainLayer/
+ ├── 📁 DomainServices/
+ │    ├── 📄 GroupDomainService.cs  
+ │    ├── 📄 IGroupDomainService.cs  
+ │    ├── 📄 IPostDomainService.cs  
+ │    └── 📄 PostDomainService.cs  
+ ├── 📁 Factories/
+ │    ├── 📄 GroupFactory.cs  
+ │    ├── 📄 IGroupFactory.cs  
+ │    ├── 📄 IPostFactory.cs  
+ │    └── 📄 PostFactory.cs  
+ ├── 📁 Groups/
+ │    ├── 📄 Group.cs  
+ │    └── 📄 IGroupRepository.cs  
+ ├── 📁 Notifications/
+ │    ├── 📄 DomainException.cs  
+ │    ├── 📄 INotificationRepository.cs  
+ │    ├── 📄 Notification.cs  
+ │    └── 📄 TypeNotification.cs  
+ ├── 📁 Posts/
+ │    ├── 📄 Comment.cs  
+ │    ├── 📄 ICommentRepository.cs  
+ │    ├── 📄 IPostRepository.cs  
+ │    ├── 📄 Post.cs  
+ │    ├── 📄 PostContent.cs  
+ │    └── 📄 TypePost.cs  
+ └── 📁 Users/
+      ├── 📄 IUserRepository.cs  
+      ├── 📄 Role.cs  
+      └── 📄 User.cs  
+
+📁 InfrastructureLayer/
+ └── 📁 Persistence/
+      ├── 📄 CommentConfiguration.cs  
+      ├── 📄 CommentRepository.cs  
+      ├── 📄 ForumDbContext.cs  
+      ├── 📄 GroupConfiguration.cs  
+      ├── 📄 GroupRepository.cs  
+      ├── 📄 NotificationConfiguration.cs  
+      ├── 📄 NotificationRepository.cs  
+      ├── 📄 PostConfiguration.cs  
+      ├── 📄 PostRepository.cs  
+      ├── 📄 UserConfiguration.cs  
+      └── 📄 UserRepository.cs  
+
+📁 WebApi/
+ ├── 📄 GroupController.cs  
+ ├── 📄 NotificationController.cs  
+ ├── 📄 PostController.cs  
+ └── 📄 UserController.cs  
+
+📄 appsettings.json  
+📄 Program.cs  
+```
+
+</details>
+
+---
+
 #### 5.5.1 Entidades, Objetos de Valor y Servicios de Dominio
+
+* **Entidades**: Las entidades centrales del dominio incluyen `User`, `Group`, `Post`, `Comment` y `Notification`, cada una con una identidad única (`Id`) y ciclo de vida propio.
+
+* **Objetos de Valor**: Se representan, por ejemplo, en el objeto `PostContent` que encapsula y valida el contenido de una publicación (`Text`), aislando reglas de negocio específicas del posteo.
+
+* **Servicios de Dominio**: Encapsulan lógica que no pertenece a una entidad específica. Por ejemplo, `GroupDomainService` y `PostDomainService` abstraen reglas que involucran múltiples entidades o lógica de negocio transversal.
+
+---
 
 #### 5.5.2 Agregados y Módulos
 
+* **Agregados**: Cada entidad principal actúa como raíz de un agregado. Por ejemplo:
+
+  * `Group` es la raíz de los grupos y sus relaciones con `Post` y `User`.
+  * `Post` es la raíz de las publicaciones, incluyendo `Comments`.
+* **Módulos**: El dominio se encuentra modularizado por contexto: `Users`, `Groups`, `Posts`, `Notifications`, lo cual favorece la cohesión y encapsulamiento de reglas propias de cada subdominio.
+
+---
+
 #### 5.5.3 Fábricas
+
+* Las **fábricas** (`GroupFactory`, `PostFactory`) se utilizan para centralizar y estandarizar la creación de entidades complejas que requieren validaciones o inicializaciones específicas.
+* Ayudan a mantener las entidades enfocadas únicamente en su comportamiento, delegando la construcción a objetos especializados.
+
+---
 
 #### 5.5.4 Repositorios
 
+* Los **repositorios** (`UserRepository`, `PostRepository`, etc.) abstraen el acceso a la base de datos y permiten que el dominio opere sin depender de la infraestructura.
+* Siguen el patrón `Repository`, ofreciendo métodos asincrónicos como `AddAsync`, `GetByIdAsync`, `DeleteAsync`, entre otros, encapsulando completamente la lógica de persistencia.
+* La capa de infraestructura (`InfrastructureLayer.Persistence`) implementa estas interfaces utilizando **Entity Framework Core**, con configuraciones específicas mediante `IEntityTypeConfiguration<T>`.
+
+---
+
 #### 5.5.5 Arquitectura en Capas
+
+El proyecto está dividido en 4 capas principales:
+
+1. **DomainLayer**: Contiene el núcleo del negocio, incluidas las entidades, servicios de dominio, excepciones y contratos (interfaces de repositorios y servicios).
+2. **ApplicationLayer**: Orquesta los casos de uso del sistema mediante servicios de aplicación y comandos/DTOs que comunican datos entre capas.
+3. **InfrastructureLayer**: Implementa los detalles técnicos como persistencia con EF Core y configuración de entidades.
+4. **WebApi**: Expone los endpoints RESTful, actúa como interfaz de entrada al sistema, y traduce las solicitudes HTTP hacia la capa de aplicación.
+
+Cada capa **depende solo de capas internas**, cumpliendo así con los principios de **inversión de dependencias** y **Clean Architecture**, lo que permite sustituir tecnologías (por ejemplo, EF Core o controladores) sin afectar la lógica de negocio.
 
 ---
 
