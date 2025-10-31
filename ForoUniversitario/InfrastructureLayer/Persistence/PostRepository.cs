@@ -20,7 +20,7 @@ public class PostRepository : IPostRepository
     public async Task<Post?> GetByIdAsync(Guid id)
     {
         return await _context.Posts
-        .Include(p => p.Author)
+        // .Include(p => p.Author)
         .FirstOrDefaultAsync(p => p.Id == id);
     }
 

@@ -1,0 +1,6 @@
+projectKey=UNSAlink_Forum
+serverUrl=http://localhost:9000
+serverVersion=25.9.0.112764
+dashboardUrl=http://localhost:9000/dashboard?id=UNSAlink_Forum
+ceTaskId=a1215dd8-06cf-4a1a-bf46-30ce82d48dd2
+ceTaskUrl=http://localhost:9000/api/ce/task?id=a1215dd8-06cf-4a1a-bf46-30ce82d48dd2
