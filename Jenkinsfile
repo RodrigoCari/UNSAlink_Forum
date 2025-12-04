@@ -7,6 +7,20 @@ pipeline {
     }
 
     stages {
+        stage('Clean Environment') {
+            steps {
+                script {
+                    echo 'Cleaning up previous processes...'
+                    try {
+                        bat 'taskkill /F /IM dotnet.exe /T || exit 0'
+                        bat 'taskkill /F /IM node.exe /T || exit 0'
+                    } catch (Exception e) {
+                        echo 'No processes to kill.'
+                    }
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm
