@@ -63,7 +63,7 @@ pipeline {
             steps {
                 dir('tests/performance') {
                     // Assumes jmeter is available in path
-                    bat '"C:\\Users\\RODRIGO\\Documents\\3er año B\\Ingeniería de Software II\\Jmeter\\apache-jmeter-5.6.3\\bin\\jmeter.bat" -n -t performance_plan.jmx -l results.jtl'
+                    bat '"%WORKSPACE%\\JMeterLink\\bin\\jmeter.bat" -n -t performance_plan.jmx -l results.jtl'
                 }
             }
         }
