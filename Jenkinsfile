@@ -34,7 +34,7 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 dir('ForoUniversitario.Tests') {
-                    bat 'dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage"'
+                    bat 'dotnet test --configuration Release --no-build --logger "junit;LogFilePath=../TestResults/test-results.xml" --collect:"XPlat Code Coverage"'
                 }
             }
         }
