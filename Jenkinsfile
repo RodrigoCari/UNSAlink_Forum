@@ -34,7 +34,7 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 dir('ForoUniversitario.Tests') {
-                    bat 'dotnet test --configuration Release --no-build --logger "junit;LogFilePath=../TestResults/test-results.xml" --collect:"XPlat Code Coverage"'
+                    bat 'dotnet test --configuration Release --no-build --logger "junit;LogFilePath=test-results.xml" --collect:"XPlat Code Coverage"'
                 }
             }
         }
@@ -52,10 +52,9 @@ pipeline {
 
         stage('Functional Tests') {
             steps {
-                dir('tests/functional') {
-                    // Assumes python and selenium are available
-                    bat 'pip install selenium'
-                    bat 'python functional_tests.py'
+                dir('Frontend') {
+                    // Start frontend in background, wait 10s, then run tests
+                    bat 'start /B npm run preview -- --port 5173 & timeout /t 10 & cd ..\\tests\\functional & pip install selenium & python functional_tests.py'
                 }
             }
         }
@@ -80,7 +79,7 @@ pipeline {
 
     post {
         always {
-            junit '**/TestResults/*.xml'
+            junit '**/test-results.xml'
         }
     }
 }
