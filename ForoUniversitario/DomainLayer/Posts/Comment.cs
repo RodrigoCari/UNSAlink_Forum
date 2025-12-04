@@ -3,8 +3,8 @@
 public class Comment
 {
     public Guid Id { get; private set; }
-    public string Content { get; private set; }
-    public string Author { get; private set; }
+    public string Content { get; private set; } = string.Empty; // INICIALIZAR
+    public string Author { get; private set; } = string.Empty; // INICIALIZAR
     public DateTime CreatedAt { get; private set; }
 
     public Guid PostId { get; private set; }

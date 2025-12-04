@@ -1,5 +1,6 @@
 ﻿using ForoUniversitario.DomainLayer.Groups;
 using ForoUniversitario.DomainLayer.Posts;
+using ForoUniversitario.DomainLayer.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -42,13 +43,19 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
                .WithOne()
                .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne<Group>() // navegación implícita
+        // CORRECCIÓN: Usar la misma configuración que UserConfiguration
+        builder.HasOne(p => p.Author)
+               .WithMany(u => u.Posts)
+               .HasForeignKey(p => p.AuthorId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(p => p.Group)
                .WithMany(g => g.Posts)
                .HasForeignKey(p => p.GroupId)
                .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(p => p.SharedPostId)
-       .IsRequired(false);
+               .IsRequired(false);
 
         builder.HasOne(p => p.SharedPost)
                .WithMany()

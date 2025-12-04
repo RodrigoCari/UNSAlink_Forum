@@ -8,7 +8,7 @@ import NotificationView from '@/views/NotificationView.vue'
 import ModifyProfileView from '@/views/ModifyProfileView.vue'
 import GroupDetailView from '@/views/GroupDetailView.vue'
 import UserProfileView from '@/views/UserProfileView.vue'
-import CreateGroupView from '@/views/CreategroupView.vue'
+import CreateGroupView from '@/views/CreateGroupView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

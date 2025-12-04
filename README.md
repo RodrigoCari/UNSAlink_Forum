@@ -31,6 +31,8 @@
    &nbsp;&nbsp;&nbsp;&nbsp;5.5.5 [Arquitectura en Capas](#555-arquitectura-en-capas)
 6. [Gestión de Proyecto](#6-gestión-de-proyecto)  
    6.1 [Tablero de Trello](#61-tablero-de-trello)
+7. [Pipeline CI/CD](#7-pipeline-cicd)
+8. [Gestión de Cambios](#8-gestión-de-cambios)
 
 ---
 
@@ -1427,3 +1429,48 @@ https://trello.com/b/asrftQrL/unsalink
 
 ![Swagger UI 1](diagrams/SwaggerUI-1.png)
 ![Swagger UI 2](diagrams/SwaggerUI-2.png)
+
+---
+
+## 7. Pipeline CI/CD
+
+---
+
+El proyecto cuenta con un pipeline de Integración y Despliegue Continuo (CI/CD) implementado en **Jenkins**, diseñado para asegurar la calidad del código y la estabilidad de las entregas.
+
+### Etapas del Pipeline
+
+1.  **Construcción Automática (Build):**
+    *   **Backend:** Se compila la solución .NET (`dotnet build`) asegurando que no existan errores de sintaxis o referencias perdidas.
+    *   **Frontend:** Se instalan las dependencias (`npm install`) y se construye la aplicación Vue.js (`npm run build`).
+
+2.  **Análisis Estático de Código:**
+    *   Se utiliza **SonarQube** para analizar la calidad del código, detectar *code smells*, bugs potenciales y vulnerabilidades de seguridad.
+    *   Integración mediante `dotnet sonarscanner`.
+
+3.  **Pruebas Unitarias:**
+    *   Ejecución de pruebas automatizadas con **xUnit** (`dotnet test`).
+    *   Generación de reportes de cobertura de código.
+
+4.  **Pruebas Funcionales:**
+    *   Automatización de pruebas de interfaz de usuario utilizando **Selenium** y **Python**.
+    *   Verificación de flujos críticos como carga de página de inicio y navegación básica.
+
+5.  **Pruebas de Rendimiento:**
+    *   Ejecución de planes de prueba con **Apache JMeter**.
+    *   Medición de tiempos de respuesta y estabilidad bajo carga simulada.
+
+6.  **Pruebas de Seguridad:**
+    *   Escaneo de vulnerabilidades web utilizando **OWASP ZAP**.
+
+---
+
+## 8. Gestión de Cambios
+
+---
+
+La gestión de cambios y tareas se realiza a través de **GitHub Projects** y **Issues**, siguiendo una metodología ágil.
+
+*   **Issues:** Cada nueva funcionalidad, mejora o corrección de error se registra como un *Issue* en GitHub.
+*   **Ramas:** Se crea una rama específica para cada *Issue* (ej. `feature/nueva-funcionalidad`), que posteriormente se integra a `development` y finalmente a `main` mediante *Pull Requests*.
+*   **Trazabilidad:** Los *commits* se vinculan a los *Issues* correspondientes, permitiendo un seguimiento detallado del historial de cambios.

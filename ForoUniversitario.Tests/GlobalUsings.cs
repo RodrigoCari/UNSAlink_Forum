@@ -1,0 +1,12 @@
+global using ForoUniversitario.DomainLayer.Posts;
+global using ForoUniversitario.DomainLayer.Users;
+global using ForoUniversitario.DomainLayer.Groups;
+global using ForoUniversitario.DomainLayer.Notifications;
+global using ForoUniversitario.DomainLayer.Factories;
+global using ForoUniversitario.DomainLayer.DomainServices;
+global using ForoUniversitario.ApplicationLayer.Groups;
+global using ForoUniversitario.ApplicationLayer.Posts;
+global using ForoUniversitario.ApplicationLayer.Users;
+global using ForoUniversitario.ApplicationLayer.Notifications;
+global using Xunit;
+global using Moq;
