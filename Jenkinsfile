@@ -70,9 +70,54 @@ pipeline {
 
         stage('Security Tests') {
             steps {
-                // Placeholder for OWASP ZAP
-                echo 'Running OWASP ZAP scan...'
-                // bat 'zap-cli quick-scan http://localhost:5000'
+                script {
+                    echo 'Starting services for Security Testing...'
+                    // Start Backend in background
+                    bat 'start /B dotnet run --project ForoUniversitario/ForoUniversitario.csproj --urls "http://localhost:5000"'
+                    
+                    // Start Frontend in background
+                    dir('Frontend') {
+                        bat 'start /B npm run preview -- --port 5173'
+                    }
+
+                    // Wait for services to start
+                    sleep 15
+
+                    echo 'Running OWASP ZAP scan...'
+                    // Run ZAP Quick Scan
+                    // Note: Using "call" to ensure bat execution doesn't exit immediately if it's a script
+                    // -cmd: Run in command line mode
+                    // -quickurl: The URL to scan
+                    // -quickout: Output path for the report
+                    def zapPath = '"C:\\Program Files\\ZAP\\Zed Attack Proxy\\zap.bat"'
+                    def reportPath = "${WORKSPACE}\\zap-report.html"
+                    
+                    try {
+                        bat "${zapPath} -cmd -quickurl http://localhost:5173 -quickout \"${reportPath}\""
+                    } catch (Exception e) {
+                        echo "ZAP Scan encountered issues: ${e.message}"
+                    } finally {
+                        echo 'Stopping services...'
+                        // Kill the processes started. This is a rough cleanup for Windows.
+                        // Warning: This might kill other dotnet/node instances if running.
+                        bat 'taskkill /F /IM dotnet.exe /T || exit 0'
+                        bat 'taskkill /F /IM node.exe /T || exit 0'
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying to Local Directory (Non-Docker)...'
+                // Publish Backend
+                bat 'dotnet publish ForoUniversitario/ForoUniversitario.csproj -c Release -o "C:\\Deployments\\ForoUniversitario\\Backend"'
+                
+                // Copy Frontend Build
+                // Assumes "npm run build" in "Build Frontend" stage created the dist folder
+                bat 'xcopy /E /I /Y Frontend\\dist "C:\\Deployments\\ForoUniversitario\\Frontend"'
+                
+                echo 'Deployment Complete. Application available at C:\\Deployments\\ForoUniversitario'
             }
         }
     }
