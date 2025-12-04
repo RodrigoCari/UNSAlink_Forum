@@ -130,9 +130,9 @@ pipeline {
                     }
 
                     // 3. Start Frontend (Detached)
-                    withEnv(['JENKINS_NODE_COOKIE=dontKillMe']) {
+                    withEnv(['JENKINS_NODE_COOKIE=dontKillMe', 'VITE_API_BASE=http://localhost:5000/api']) {
                         dir('Frontend') {
-                            echo 'Starting Frontend on http://localhost:5173...'
+                            echo 'Starting Frontend on http://localhost:5173 with API at http://localhost:5000/api...'
                             bat 'start /B npm run dev -- --port 5173'
                         }
                     }

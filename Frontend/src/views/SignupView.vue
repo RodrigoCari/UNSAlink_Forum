@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { API_BASE } from '@/config'
 
 const username = ref('')
 const email = ref('')
@@ -42,7 +43,8 @@ const register = async () => {
 
   try {
     // Registrar usuario
-    await axios.post('https://localhost:44329/api/user', {
+    // Registrar usuario
+    await axios.post(`${API_BASE}/user`, {
       name: username.value.trim(),
       email: email.value.trim(),
       password: password.value.trim(),
@@ -50,7 +52,8 @@ const register = async () => {
     })
 
     // Iniciar sesión automáticamente
-    const loginRes = await axios.post('https://localhost:44329/api/User/login', {
+    // Iniciar sesión automáticamente
+    const loginRes = await axios.post(`${API_BASE}/User/login`, {
       name: username.value.trim(),
       password: password.value.trim()
     })

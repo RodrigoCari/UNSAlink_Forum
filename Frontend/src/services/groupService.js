@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://localhost:44329/api';
+import { API_BASE } from '@/config';
 
 export async function createGroup({ name, description, adminId }) {
   if (!adminId) throw new Error('adminId es requerido para crear el grupo');

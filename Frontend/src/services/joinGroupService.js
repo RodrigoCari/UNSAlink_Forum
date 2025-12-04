@@ -1,7 +1,8 @@
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://localhost:44329/api/Group'
+import { API_BASE } from '@/config';
+const GROUP_API = `${API_BASE}/Group`;
 
 export async function fetchJoinGroup(id) {
-  const res = await fetch(`${API_BASE}/${id}`, { mode: 'cors' })
+  const res = await fetch(`${GROUP_API}/${id}`, { mode: 'cors' })
   if (!res.ok) {
     throw new Error(`Error ${res.status} al obtener el grupo`)
   }
@@ -22,7 +23,7 @@ export async function fetchJoinGroup(id) {
 export async function joinGroup(id) {
   const userId = localStorage.getItem('userId')
   const res = await fetch(
-    `${API_BASE}/${id}/join?userId=${userId}`,
+    `${GROUP_API}/${id}/join?userId=${userId}`,
     { method: 'POST', mode: 'cors' }
   )
   if (!res.ok) {
