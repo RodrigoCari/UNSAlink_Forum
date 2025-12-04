@@ -109,15 +109,38 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Deploying to Local Directory (Non-Docker)...'
-                // Publish Backend
-                bat 'dotnet publish ForoUniversitario/ForoUniversitario.csproj -c Release -o "C:\\Deployments\\ForoUniversitario\\Backend"'
-                
-                // Copy Frontend Build
-                // Assumes "npm run build" in "Build Frontend" stage created the dist folder
-                bat 'xcopy /E /I /Y Frontend\\dist "C:\\Deployments\\ForoUniversitario\\Frontend"'
-                
-                echo 'Deployment Complete. Application available at C:\\Deployments\\ForoUniversitario'
+                script {
+                    echo 'Deploying Application (Live Execution)...'
+                    
+                    // 1. Kill existing processes (Clean Slate)
+                    // Note: This is aggressive and kills ALL dotnet/node processes. 
+                    // In a shared environment, you would need more specific filters.
+                    try {
+                        bat 'taskkill /F /IM dotnet.exe /T || exit 0'
+                        bat 'taskkill /F /IM node.exe /T || exit 0'
+                    } catch (Exception e) {
+                        echo 'No processes to kill.'
+                    }
+
+                    // 2. Start Backend (Detached)
+                    // JENKINS_NODE_COOKIE=dontKillMe tells Jenkins NOT to kill this process tree
+                    withEnv(['JENKINS_NODE_COOKIE=dontKillMe']) {
+                        echo 'Starting Backend on http://localhost:5000...'
+                        bat 'start /B dotnet run --project ForoUniversitario/ForoUniversitario.csproj --urls "http://localhost:5000"'
+                    }
+
+                    // 3. Start Frontend (Detached)
+                    withEnv(['JENKINS_NODE_COOKIE=dontKillMe']) {
+                        dir('Frontend') {
+                            echo 'Starting Frontend on http://localhost:5173...'
+                            bat 'start /B npm run dev -- --port 5173'
+                        }
+                    }
+
+                    // 4. Wait for startup
+                    sleep 10
+                    echo 'Deployment Complete. Backend: http://localhost:5000, Frontend: http://localhost:5173'
+                }
             }
         }
     }
