@@ -21,4 +21,22 @@ public class UserTests
         Assert.Contains(post, user.Posts);
         Assert.Single(user.Posts);
     }
+
+    [Fact]
+    public void Constructor_WithEmptyName_ShouldThrowArgumentException()
+    {
+        Assert.Throws<ArgumentNullException>(() => new User(Guid.NewGuid(), "", "test@email.com", Role.Student, "hash"));
+    }
+
+    [Fact]
+    public void Constructor_WithEmptyEmail_ShouldThrowArgumentException()
+    {
+        Assert.Throws<ArgumentNullException>(() => new User(Guid.NewGuid(), "Name", "", Role.Student, "hash"));
+    }
+
+    [Fact]
+    public void Constructor_WithEmptyPasswordHash_ShouldThrowArgumentException()
+    {
+        Assert.Throws<ArgumentNullException>(() => new User(Guid.NewGuid(), "Name", "test@email.com", Role.Student, ""));
+    }
 }
