@@ -1,38 +1,37 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
 using ForoUniversitario.ApplicationLayer.Security;
 using ForoUniversitario.DomainLayer.Users;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 
 namespace ForoUniversitario.InfrastructureLayer.Security;
 
 public class JwtTokenGenerator : IJwtTokenGenerator
 {
-    private readonly IConfiguration _configuration;
+    private readonly JwtSettings _jwtSettings;
 
-    public JwtTokenGenerator(IConfiguration configuration)
+    public JwtTokenGenerator(IOptions<JwtSettings> jwtOptions)
     {
-        _configuration = configuration;
+        _jwtSettings = jwtOptions.Value;
     }
 
     public string GenerateToken(User user)
     {
-        var jwtSection = _configuration.GetSection("Jwt");
-        var keyString = jwtSection["Key"];
+        var keyString = _jwtSettings.Key;
 
         if (string.IsNullOrEmpty(keyString))
         {
-            throw new Exception("JWT Key is not configured in appsettings.json");
+            throw new Exception("JWT Key is not configured properly");
         }
 
         var key = Encoding.ASCII.GetBytes(keyString);
-        var expiresInMinutes = jwtSection["ExpiresInMinutes"];
+        var expiresInMinutes = _jwtSettings.ExpiresInMinutes;
         
         if (string.IsNullOrEmpty(expiresInMinutes))
         {
-            throw new Exception("JWT ExpiresInMinutes is not configured");
+            throw new Exception("JWT ExpiresInMinutes is not configured properly");
         }
 
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -45,8 +44,8 @@ public class JwtTokenGenerator : IJwtTokenGenerator
                 new Claim(ClaimTypes.Role, user.Role.ToString())
             }),
             Expires = DateTime.UtcNow.AddMinutes(double.Parse(expiresInMinutes)),
-            Issuer = jwtSection["Issuer"],
-            Audience = jwtSection["Audience"],
+            Issuer = _jwtSettings.Issuer,
+            Audience = _jwtSettings.Audience,
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
 

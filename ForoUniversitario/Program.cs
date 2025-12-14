@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Microsoft.Extensions.Configuration; // Ensure this is present
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +60,9 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
+// Configure IOptions<JwtSettings>
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
 //builder.Services.AddDbContext<ForumDbContext>(options =>
 //    options.UseInMemoryDatabase("ForumDb"));
