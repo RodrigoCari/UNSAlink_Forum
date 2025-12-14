@@ -9,6 +9,8 @@ using ForoUniversitario.DomainLayer.Notifications;
 using ForoUniversitario.DomainLayer.Posts;
 using ForoUniversitario.DomainLayer.Users;
 using ForoUniversitario.InfrastructureLayer.Persistence;
+using ForoUniversitario.InfrastructureLayer.Security;
+using ForoUniversitario.ApplicationLayer.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -69,6 +71,7 @@ builder.Services.AddScoped<IPostService, PostService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
