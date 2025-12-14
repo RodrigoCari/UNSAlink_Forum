@@ -55,7 +55,7 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
                .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(p => p.SharedPostId)
-               .IsRequired(false);
+       .IsRequired(false);
 
         builder.HasOne(p => p.SharedPost)
                .WithMany()
