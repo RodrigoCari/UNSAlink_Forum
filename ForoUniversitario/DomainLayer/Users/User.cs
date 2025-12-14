@@ -11,7 +11,8 @@ public class User
     public string PasswordHash { get; private set; } = string.Empty; // INICIALIZAR CON string.Empty
     public Role Role { get; private set; }
 
-    public List<Post> Posts { get; private set; } = new();
+    private readonly List<Post> _posts = new();
+    public IReadOnlyCollection<Post> Posts => _posts.AsReadOnly(); // Encapsulation
     public List<string> Interests { get; private set; } = new();
 
     private User() { }
@@ -34,5 +35,10 @@ public class User
     public void UpdateInterests(List<string> interests)
     {
         Interests = interests;
+    }
+
+    public void AddPost(Post post)
+    {
+        _posts.Add(post);
     }
 }
