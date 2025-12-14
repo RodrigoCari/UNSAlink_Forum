@@ -65,6 +65,17 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { API_BASE } from '@/config'
+
+// Lista de intereses disponibles
+const allInterests = [
+  'ART',
+  'DRAW',
+  'CONECTIVITY',
+  'NEWS',
+  'JOB MARKET',
+  'SEARCHING'
+]
 
 // Lista de intereses disponibles
 const allInterests = [
@@ -96,7 +107,7 @@ const axiosConfig = {
 // Obtener datos del perfil
 const fetchProfile = async () => {
   try {
-    const res = await axios.get(`https://localhost:44329/api/User/${userId}`, axiosConfig)
+    const res = await axios.get(`${API_BASE}/User/${userId}`, axiosConfig)
     profile.value = {
       name: res.data.name,
       email: res.data.email,
@@ -111,7 +122,7 @@ const fetchProfile = async () => {
 // Actualizar datos del perfil
 const updateProfile = async () => {
   try {
-    await axios.put(`https://localhost:44329/api/User/${userId}`, {
+    await axios.put(`${API_BASE}/User/${userId}`, {
       name: profile.value.name,
       email: profile.value.email,
       interests: profile.value.interests

@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { API_BASE } from '@/config'
 
 const username = ref('')
 const password = ref('')
@@ -11,7 +12,7 @@ const userStore = useUserStore()
 
 const login = async () => {
   try {
-    const response = await axios.post('https://localhost:44329/api/User/login', {
+    const response = await axios.post(`${API_BASE}/User/login`, {
       name: username.value.trim(),
       password: password.value.trim()
     })

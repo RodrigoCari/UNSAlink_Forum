@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { API_BASE } from '@/config'
 
 const notifications = ref([])
 
@@ -22,7 +23,7 @@ async function fetchNotifications() {
   }
 
   try {
-    const response = await fetch(`https://localhost:44329/api/Notification/user/${userId}`)
+    const response = await fetch(`${API_BASE}/Notification/user/${userId}`)
     if (!response.ok) throw new Error("Error al obtener notificaciones")
     const data = await response.json()
     console.log("Notificaciones recibidas:", data)
@@ -34,7 +35,7 @@ async function fetchNotifications() {
 
 async function markAsRead(id) {
   try {
-    await fetch(`https://localhost:44329/api/Notification/${id}/markAsRead`, {
+    await fetch(`${API_BASE}/Notification/${id}/markAsRead`, {
       method: 'POST'
     })
     console.log(`Notificación ${id} marcada como leída`)

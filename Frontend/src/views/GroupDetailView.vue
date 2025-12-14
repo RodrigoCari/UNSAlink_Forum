@@ -144,7 +144,7 @@
   import { useRoute, useRouter } from 'vue-router'
   import { useGroupStore } from '../stores/group'
   import { fetchJoinGroup, joinGroup } from '../services/joinGroupService'
-  import { fetchGroupPosts, addComment as sendComment } from '../services/PostService';
+  import { fetchGroupPosts, addComment as sendComment } from '../services/postService';
 
   const route = useRoute()
   const router = useRouter()

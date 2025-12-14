@@ -18,8 +18,8 @@ public class Group
 
     private Group() { } // EF Core
 
-    // Constructor usado solo por la fábrica
-    internal Group(Guid id, string name, string description, User admin)
+    // CAMBIO: Cambiar de internal a public
+    public Group(Guid id, string name, string description, User admin)
     {
         Id = id;
         Name = name ?? throw new ArgumentNullException(nameof(name));

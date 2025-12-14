@@ -72,16 +72,23 @@ public class UserService : IUserService
 
         var key = Encoding.ASCII.GetBytes(keyString);
 
+        // CORREGIR: Validar que ExpiresInMinutes no sea nulo
+        var expiresInMinutes = jwtSection["ExpiresInMinutes"];
+        if (string.IsNullOrEmpty(expiresInMinutes))
+        {
+            throw new Exception("JWT ExpiresInMinutes is not configured");
+        }
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.Name),
-                new Claim(ClaimTypes.Role, user.Role.ToString())
-            }),
-            Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSection["ExpiresInMinutes"])),
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(ClaimTypes.Name, user.Name),
+            new Claim(ClaimTypes.Role, user.Role.ToString())
+        }),
+            Expires = DateTime.UtcNow.AddMinutes(double.Parse(expiresInMinutes)), // Ya no da warning
             Issuer = jwtSection["Issuer"],
             Audience = jwtSection["Audience"],
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
