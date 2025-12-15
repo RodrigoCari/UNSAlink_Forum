@@ -8,10 +8,11 @@ namespace ForoUniversitario.ApplicationLayer.Posts;
 
 public class PostService : IPostService
 {
+    private const string UnknownName = "Unknown";
+
     private readonly IPostRepository _postRepository;
     private readonly IUserRepository _userRepository;
     private readonly IGroupRepository _groupRepository;
-
     private readonly IPostFactory _postFactory;
     private readonly IPostDomainService _postDomainService;
 
@@ -57,9 +58,9 @@ public class PostService : IPostService
             Title = post.Title,
             Content = post.Content.Text,
             AuthorId = post.AuthorId,
-            AuthorName = author?.Name ?? "Unknown",
+            AuthorName = author?.Name ?? UnknownName,
             GroupId = post.GroupId,
-            GroupName = group?.Name ?? "Unknown",
+            GroupName = group?.Name ?? UnknownName,
             Type = post.Type,
             CreatedAt = post.CreatedAt
         };
@@ -71,6 +72,7 @@ public class PostService : IPostService
         var posts = await _postRepository.GetByTypeAsync(type);
 
         var result = new List<PostDto>();
+
         foreach (var post in posts)
         {
             var author = await _userRepository.GetByIdAsync(post.AuthorId);
@@ -82,9 +84,9 @@ public class PostService : IPostService
                 Title = post.Title,
                 Content = post.Content.Text,
                 AuthorId = post.AuthorId,
-                AuthorName = author?.Name ?? "Unknown",
+                AuthorName = author?.Name ?? UnknownName,
                 GroupId = post.GroupId,
-                GroupName = group?.Name ?? "Unknown",
+                GroupName = group?.Name ?? UnknownName,
                 Type = post.Type,
                 CreatedAt = post.CreatedAt
             });
@@ -96,8 +98,8 @@ public class PostService : IPostService
     public async Task<IEnumerable<PostDto>> GetByGroupAsync(Guid groupId)
     {
         var posts = await _postRepository.GetByGroupAsync(groupId);
-
         var result = new List<PostDto>();
+
         foreach (var post in posts)
         {
             var author = await _userRepository.GetByIdAsync(post.AuthorId);
@@ -119,9 +121,9 @@ public class PostService : IPostService
                         Title = sharedPost.Title,
                         Content = sharedPost.Content.Text,
                         AuthorId = sharedPost.AuthorId,
-                        AuthorName = sharedAuthor?.Name ?? "Unknown",
+                        AuthorName = sharedAuthor?.Name ?? UnknownName,
                         GroupId = sharedPost.GroupId,
-                        GroupName = sharedGroup?.Name ?? "Unknown",
+                        GroupName = sharedGroup?.Name ?? UnknownName,
                         Type = sharedPost.Type,
                         CreatedAt = sharedPost.CreatedAt
                     };
@@ -134,9 +136,9 @@ public class PostService : IPostService
                 Title = post.Title,
                 Content = post.Content.Text,
                 AuthorId = post.AuthorId,
-                AuthorName = author?.Name ?? "Unknown",
+                AuthorName = author?.Name ?? UnknownName,
                 GroupId = post.GroupId,
-                GroupName = group?.Name ?? "Unknown",
+                GroupName = group?.Name ?? UnknownName,
                 Type = post.Type,
                 CreatedAt = post.CreatedAt,
                 SharedPost = sharedPostDto,
@@ -156,10 +158,12 @@ public class PostService : IPostService
     public async Task ShareToGroupAsync(Guid postId, Guid groupId)
     {
         var post = await _postRepository.GetByIdAsync(postId);
-        if (post == null) throw new Exception("Post no encontrado");
+        if (post == null)
+            throw new KeyNotFoundException("Post no encontrado");
 
         bool canShare = await _postDomainService.CanSharePostToGroupAsync(post, groupId);
-        if (!canShare) throw new InvalidOperationException("No se puede compartir el post en el grupo destino");
+        if (!canShare)
+            throw new InvalidOperationException("No se puede compartir el post en el grupo destino");
 
         throw new NotImplementedException("Implementa la lógica para compartir el post en el grupo");
     }
@@ -172,6 +176,7 @@ public class PostService : IPostService
     public async Task<IEnumerable<PostDto>> GetPostsByUserAsync(Guid userId)
     {
         var posts = await _postRepository.GetPostsByUserAsync(userId);
+
         return posts.Select(p => new PostDto
         {
             Id = p.Id,
@@ -188,23 +193,24 @@ public class PostService : IPostService
     {
         var originalPost = await _postRepository.GetByIdAsync(command.OriginalPostId);
         if (originalPost == null)
-            throw new Exception("Post original no encontrado");
+            throw new KeyNotFoundException("Post original no encontrado");
 
         var content = new PostContent(originalPost.Content.Text);
+
         var sharedPost = new Post(
             Guid.NewGuid(),
             command.Title,
             content,
             command.AuthorId,
             command.GroupId,
-            TypePost.Shared
-        )
+            TypePost.Shared)
         {
             SharedPostId = command.OriginalPostId
         };
 
         await _postRepository.AddAsync(sharedPost);
         await _postRepository.SaveChangesAsync();
+
         return sharedPost.Id;
     }
 }
