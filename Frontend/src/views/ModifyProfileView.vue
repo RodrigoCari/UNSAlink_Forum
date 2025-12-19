@@ -77,16 +77,6 @@ const allInterests = [
   'SEARCHING'
 ]
 
-// Lista de intereses disponibles
-const allInterests = [
-  'ART',
-  'DRAW',
-  'CONECTIVITY',
-  'NEWS',
-  'JOB MARKET',
-  'SEARCHING'
-]
-
 const profile = ref({
   name: '',
   email: '',
