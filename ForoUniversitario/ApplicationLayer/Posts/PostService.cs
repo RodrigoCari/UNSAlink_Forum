@@ -195,18 +195,11 @@ public class PostService : IPostService
         if (originalPost == null)
             throw new KeyNotFoundException("Post original no encontrado");
 
-        var content = new PostContent(originalPost.Content.Text);
-
-        var sharedPost = new Post(
-            Guid.NewGuid(),
+        var sharedPost = Post.CreateSharedPost(
             command.Title,
-            content,
             command.AuthorId,
             command.GroupId,
-            TypePost.Shared)
-        {
-            SharedPostId = command.OriginalPostId
-        };
+            originalPost);
 
         await _postRepository.AddAsync(sharedPost);
         await _postRepository.SaveChangesAsync();
