@@ -1,9 +1,9 @@
 <script setup>
 import { ref } from 'vue'
-import axios from 'axios'
+
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { API_BASE } from '@/config'
+import { authService } from '@/services/authService'
 
 const username = ref('')
 const password = ref('')
@@ -12,12 +12,9 @@ const userStore = useUserStore()
 
 const login = async () => {
   try {
-    const response = await axios.post(`${API_BASE}/User/login`, {
-      name: username.value.trim(),
-      password: password.value.trim()
-    })
+    const response = await authService.login(username.value.trim(), password.value.trim())
 
-    const token = response.data.token
+    const token = response.token
     if (token) {
       const payload = JSON.parse(atob(token.split('.')[1]))
       const userId = payload.sub
