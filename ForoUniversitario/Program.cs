@@ -17,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using Microsoft.Extensions.Configuration; // Ensure this is present
+using ForoUniversitario.InfrastructureLayer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,27 +71,13 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"))
 builder.Services.AddDbContext<ForumDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<IPostRepository, PostRepository>();
-builder.Services.AddScoped<IPostService, PostService>();
+// Modular Service Registration
+builder.Services.AddIdentityModule();
+builder.Services.AddCommunityModule();
+builder.Services.AddContentModule();
+builder.Services.AddNotificationModule();
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
-
-builder.Services.AddScoped<IGroupRepository, GroupRepository>();
-builder.Services.AddScoped<IGroupService, GroupService>();
-
-builder.Services.AddScoped<ICommentRepository, CommentRepository>();
-builder.Services.AddScoped<ICommentService, CommentService>();
-
-builder.Services.AddScoped<IGroupFactory, GroupFactory>();
-builder.Services.AddScoped<IGroupDomainService, GroupDomainService>();
-
-builder.Services.AddScoped<IPostFactory, PostFactory>();
-builder.Services.AddScoped<IPostDomainService, PostDomainService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured in appsettings.json or User Secrets.");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "ForoUniversitario";
