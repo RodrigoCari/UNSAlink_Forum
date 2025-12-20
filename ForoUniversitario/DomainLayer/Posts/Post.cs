@@ -23,8 +23,17 @@ public class Post
 
     public Post(Guid id, string title, PostContent content, Guid authorId, Guid groupId, TypePost type)
     {
+        if (title == null)
+            throw new ArgumentNullException(nameof(title));
+
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ArgumentException("Title cannot be empty", nameof(title));
+        
+        if (title.Length > 100)
+            throw new ArgumentException("Title cannot exceed 100 characters", nameof(title));
+
         Id = id;
-        Title = title ?? throw new ArgumentNullException(nameof(title));
+        Title = title;
         Content = content ?? throw new ArgumentNullException(nameof(content));
         AuthorId = authorId;
         GroupId = groupId;
