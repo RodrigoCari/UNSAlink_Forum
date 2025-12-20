@@ -46,7 +46,7 @@ public class Post
     {
         Comments.Add(comment);
     }
-    public Guid? SharedPostId { get; set; }
+    public Guid? SharedPostId { get; private set; }
     public Post? SharedPost { get; private set; }
     public static Post CreateSharedPost(string title, Guid authorId, Guid groupId, Post originalPost)
     {
