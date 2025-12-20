@@ -1,3 +1,8 @@
+using ForoUniversitario.DomainLayer.Factories;
+using ForoUniversitario.DomainLayer.Posts;
+using Xunit;
+using System;
+
 namespace ForoUniversitario.Tests.DomainLayer.Factories;
 
 public class PostFactoryTests
@@ -52,17 +57,14 @@ public class PostFactoryTests
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void CreatePost_WithEmptyOrWhitespaceTitle_ShouldCreatePost(string invalidTitle)
+    public void CreatePost_WithEmptyOrWhitespaceTitle_ShouldThrowArgumentException(string invalidTitle)
     {
         // Arrange
         var factory = new PostFactory();
 
-        // Act - NO debería lanzar excepción según implementación actual de Post
-        var post = factory.CreatePost(invalidTitle, "content", Guid.NewGuid(), Guid.NewGuid(), TypePost.Discussion);
-
-        // Assert
-        Assert.NotNull(post);
-        Assert.Equal(invalidTitle, post.Title);
+        // Act & Assert - NOW this should throw because Post entity validates it
+        Assert.Throws<ArgumentException>(() =>
+            factory.CreatePost(invalidTitle, "content", Guid.NewGuid(), Guid.NewGuid(), TypePost.Discussion));
     }
 
     [Theory]
@@ -73,7 +75,7 @@ public class PostFactoryTests
         // Arrange
         var factory = new PostFactory();
 
-        // Act & Assert - PostContent SI lanza excepción para contenido vacío
+        // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() =>
             factory.CreatePost("title", invalidContent, Guid.NewGuid(), Guid.NewGuid(), TypePost.Discussion));
 
