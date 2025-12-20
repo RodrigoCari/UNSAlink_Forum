@@ -1,9 +1,17 @@
 using ForoUniversitario.ApplicationLayer.Groups;
 using ForoUniversitario.ApplicationLayer.Notifications;
 using ForoUniversitario.ApplicationLayer.Posts;
+using ForoUniversitario.ApplicationLayer.Security;
 using ForoUniversitario.ApplicationLayer.Users;
 using ForoUniversitario.DomainLayer.DomainServices;
 using ForoUniversitario.DomainLayer.Factories;
+using ForoUniversitario.DomainLayer.Groups;
+using ForoUniversitario.DomainLayer.Notifications;
+using ForoUniversitario.DomainLayer.Posts;
+using ForoUniversitario.DomainLayer.Users;
+using ForoUniversitario.InfrastructureLayer.Persistence;
+using ForoUniversitario.InfrastructureLayer.Security;
+using Microsoft.Extensions.DependencyInjection;
 using ForoUniversitario.DomainLayer.Groups;
 using ForoUniversitario.DomainLayer.Notifications;
 using ForoUniversitario.DomainLayer.Posts;
@@ -19,6 +27,10 @@ public static class DependencyInjection
     {
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserService, UserService>();
+        
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        
         return services;
     }
 

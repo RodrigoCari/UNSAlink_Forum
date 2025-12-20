@@ -1,4 +1,5 @@
 ﻿using ForoUniversitario.ApplicationLayer.Posts;
+using ForoUniversitario.ApplicationLayer.Security;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -10,11 +11,16 @@ public class PostController : ControllerBase
 {
     private readonly IPostService _postService;
     private readonly ICommentService _commentService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public PostController(IPostService postService, ICommentService commentService)
+    public PostController(
+        IPostService postService,
+        ICommentService commentService,
+        ICurrentUserService currentUserService)
     {
         _postService = postService;
         _commentService = commentService;
+        _currentUserService = currentUserService;
     }
 
     [HttpPost]
@@ -60,10 +66,10 @@ public class PostController : ControllerBase
     [HttpPost("{postId}/comment")]
     public async Task<IActionResult> Comment(Guid postId, [FromBody] AddCommentCommand command)
     {
-        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "uid" || c.Type == ClaimTypes.NameIdentifier);
-        if (userIdClaim == null) return Unauthorized("No autorizado");
+        if (!_currentUserService.UserId.HasValue)
+            return Unauthorized("No autorizado");
 
-        var userId = Guid.Parse(userIdClaim.Value);
+        var userId = _currentUserService.UserId.Value;
 
         command.PostId = postId;
 
