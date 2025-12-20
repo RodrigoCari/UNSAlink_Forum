@@ -92,7 +92,7 @@ builder.Services.AddScoped<IGroupDomainService, GroupDomainService>();
 builder.Services.AddScoped<IPostFactory, PostFactory>();
 builder.Services.AddScoped<IPostDomainService, PostDomainService>();
 
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "clave-secreta-por-defecto";
+var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured in appsettings.json or User Secrets.");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "ForoUniversitario";
 
 builder.Services.AddAuthentication(options =>
