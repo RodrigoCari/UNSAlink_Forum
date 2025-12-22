@@ -49,21 +49,7 @@ public class PostService : IPostService
         var post = await _postRepository.GetByIdAsync(id);
         if (post == null) return null;
 
-        var author = await _userRepository.GetByIdAsync(post.AuthorId);
-        var group = await _groupRepository.FindAsync(post.GroupId);
-
-        return new PostDto
-        {
-            Id = post.Id,
-            Title = post.Title,
-            Content = post.Content.Text,
-            AuthorId = post.AuthorId,
-            AuthorName = author?.Name ?? UnknownName,
-            GroupId = post.GroupId,
-            GroupName = group?.Name ?? UnknownName,
-            Type = post.Type,
-            CreatedAt = post.CreatedAt
-        };
+        return await CreateBaseDtoAsync(post);
     }
 
     public async Task<IEnumerable<PostDto>> GetByTypeAsync(int typeInt)
@@ -71,28 +57,8 @@ public class PostService : IPostService
         var type = (TypePost)typeInt;
         var posts = await _postRepository.GetByTypeAsync(type);
 
-        var result = new List<PostDto>();
-
-        foreach (var post in posts)
-        {
-            var author = await _userRepository.GetByIdAsync(post.AuthorId);
-            var group = await _groupRepository.FindAsync(post.GroupId);
-
-            result.Add(new PostDto
-            {
-                Id = post.Id,
-                Title = post.Title,
-                Content = post.Content.Text,
-                AuthorId = post.AuthorId,
-                AuthorName = author?.Name ?? UnknownName,
-                GroupId = post.GroupId,
-                GroupName = group?.Name ?? UnknownName,
-                Type = post.Type,
-                CreatedAt = post.CreatedAt
-            });
-        }
-
-        return result;
+        var tasks = posts.Select(CreateBaseDtoAsync);
+        return await Task.WhenAll(tasks);
     }
 
     public async Task<IEnumerable<PostDto>> GetByGroupAsync(Guid groupId)
@@ -102,54 +68,26 @@ public class PostService : IPostService
 
         foreach (var post in posts)
         {
-            var author = await _userRepository.GetByIdAsync(post.AuthorId);
-            var group = await _groupRepository.FindAsync(post.GroupId);
-
-            PostDto? sharedPostDto = null;
+            var dto = await CreateBaseDtoAsync(post);
 
             if (post.SharedPostId.HasValue)
             {
                 var sharedPost = await _postRepository.GetByIdAsync(post.SharedPostId.Value);
                 if (sharedPost != null)
                 {
-                    var sharedAuthor = await _userRepository.GetByIdAsync(sharedPost.AuthorId);
-                    var sharedGroup = await _groupRepository.FindAsync(sharedPost.GroupId);
-
-                    sharedPostDto = new PostDto
-                    {
-                        Id = sharedPost.Id,
-                        Title = sharedPost.Title,
-                        Content = sharedPost.Content.Text,
-                        AuthorId = sharedPost.AuthorId,
-                        AuthorName = sharedAuthor?.Name ?? UnknownName,
-                        GroupId = sharedPost.GroupId,
-                        GroupName = sharedGroup?.Name ?? UnknownName,
-                        Type = sharedPost.Type,
-                        CreatedAt = sharedPost.CreatedAt
-                    };
+                    dto.SharedPost = await CreateBaseDtoAsync(sharedPost);
                 }
             }
 
-            result.Add(new PostDto
+            dto.Comments = post.Comments.Select(c => new CommentDto
             {
-                Id = post.Id,
-                Title = post.Title,
-                Content = post.Content.Text,
-                AuthorId = post.AuthorId,
-                AuthorName = author?.Name ?? UnknownName,
-                GroupId = post.GroupId,
-                GroupName = group?.Name ?? UnknownName,
-                Type = post.Type,
-                CreatedAt = post.CreatedAt,
-                SharedPost = sharedPostDto,
-                Comments = post.Comments.Select(c => new CommentDto
-                {
-                    Id = c.Id,
-                    Content = c.Content,
-                    Author = c.Author,
-                    CreatedAt = c.CreatedAt
-                }).ToList()
-            });
+                Id = c.Id,
+                Content = c.Content,
+                Author = c.Author,
+                CreatedAt = c.CreatedAt
+            }).ToList();
+
+            result.Add(dto);
         }
 
         return result;
@@ -176,17 +114,8 @@ public class PostService : IPostService
     public async Task<IEnumerable<PostDto>> GetPostsByUserAsync(Guid userId)
     {
         var posts = await _postRepository.GetPostsByUserAsync(userId);
-
-        return posts.Select(p => new PostDto
-        {
-            Id = p.Id,
-            Title = p.Title,
-            Content = p.Content.Text,
-            AuthorId = p.AuthorId,
-            GroupId = p.GroupId,
-            CreatedAt = p.CreatedAt,
-            Type = p.Type
-        });
+        var tasks = posts.Select(CreateBaseDtoAsync);
+        return await Task.WhenAll(tasks);
     }
 
     public async Task<Guid> ShareAsync(SharePostCommand command)
@@ -205,5 +134,25 @@ public class PostService : IPostService
         await _postRepository.SaveChangesAsync();
 
         return sharedPost.Id;
+    }
+
+    // Extract Method
+    private async Task<PostDto> CreateBaseDtoAsync(Post post)
+    {
+        var author = await _userRepository.GetByIdAsync(post.AuthorId);
+        var group = await _groupRepository.FindAsync(post.GroupId);
+
+        return new PostDto
+        {
+            Id = post.Id,
+            Title = post.Title,
+            Content = post.Content.Text,
+            AuthorId = post.AuthorId,
+            AuthorName = author?.Name ?? UnknownName,
+            GroupId = post.GroupId,
+            GroupName = group?.Name ?? UnknownName,
+            Type = post.Type,
+            CreatedAt = post.CreatedAt
+        };
     }
 }
