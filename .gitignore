@@ -362,3 +362,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /ForoUniversitario/appsettings.json
+/sonar-project.properties
+/.scannerwork/report-task.txt
