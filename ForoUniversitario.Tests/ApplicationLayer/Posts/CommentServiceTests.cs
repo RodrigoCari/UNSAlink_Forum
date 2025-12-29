@@ -1,3 +1,5 @@
+using ForoUniversitario.DomainLayer.Factories;
+
 namespace ForoUniversitario.Tests.ApplicationLayer.Posts;
 
 public class CommentServiceTests
@@ -6,6 +8,7 @@ public class CommentServiceTests
     private readonly Mock<IUserRepository> _mockUserRepository;
     private readonly Mock<IPostRepository> _mockPostRepository;
     private readonly Mock<INotificationService> _mockNotificationService;
+    private readonly Mock<ICommentFactory> _mockCommentFactory;
     private readonly CommentService _commentService;
 
     public CommentServiceTests()
@@ -14,12 +17,14 @@ public class CommentServiceTests
         _mockUserRepository = new Mock<IUserRepository>();
         _mockPostRepository = new Mock<IPostRepository>();
         _mockNotificationService = new Mock<INotificationService>();
+        _mockCommentFactory = new Mock<ICommentFactory>();
 
         _commentService = new CommentService(
             _mockCommentRepository.Object,
             _mockUserRepository.Object,
             _mockPostRepository.Object,
-            _mockNotificationService.Object);
+            _mockNotificationService.Object,
+            _mockCommentFactory.Object);
     }
 
     [Fact]
@@ -38,9 +43,12 @@ public class CommentServiceTests
             PostId = postId
         };
 
+        var comment = new Comment(Guid.NewGuid(), command.Content, user.Name, postId);
+
         _mockUserRepository.Setup(x => x.GetByIdAsync(userId)).ReturnsAsync(user);
         _mockPostRepository.Setup(x => x.GetByIdAsync(postId)).ReturnsAsync(post);
         _mockCommentRepository.Setup(x => x.AddAsync(It.IsAny<Comment>(), postId)).Returns(Task.CompletedTask);
+        _mockCommentFactory.Setup(x => x.Create(command.Content, user.Name, postId)).Returns(comment);
         _mockCommentRepository.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
         _mockNotificationService.Setup(x => x.SendAsync(postAuthorId, It.IsAny<string>(), TypeNotification.NewComment))
             .Returns(Task.CompletedTask);
@@ -49,6 +57,7 @@ public class CommentServiceTests
         await _commentService.AddCommentAsync(command, userId);
 
         // Assert
+        _mockCommentFactory.Verify(x => x.Create(command.Content, user.Name, postId), Times.Once);
         _mockCommentRepository.Verify(x => x.AddAsync(It.Is<Comment>(c =>
             c.Content == command.Content &&
             c.Author == user.Name), postId), Times.Once);
@@ -73,8 +82,11 @@ public class CommentServiceTests
             PostId = postId
         };
 
+        var comment = new Comment(Guid.NewGuid(), command.Content, user.Name, postId);
+
         _mockUserRepository.Setup(x => x.GetByIdAsync(userId)).ReturnsAsync(user);
         _mockPostRepository.Setup(x => x.GetByIdAsync(postId)).ReturnsAsync(post);
+        _mockCommentFactory.Setup(x => x.Create(command.Content, user.Name, postId)).Returns(comment);
         _mockCommentRepository.Setup(x => x.AddAsync(It.IsAny<Comment>(), postId)).Returns(Task.CompletedTask);
         _mockCommentRepository.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
 

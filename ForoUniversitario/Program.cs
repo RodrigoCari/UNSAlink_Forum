@@ -79,6 +79,7 @@ builder.Services.AddContentModule();
 builder.Services.AddNotificationModule();
 
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<ICommentFactory, CommentFactory>();
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured in appsettings.json or User Secrets.");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "ForoUniversitario";
