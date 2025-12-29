@@ -1,4 +1,5 @@
 using ForoUniversitario.DomainLayer.Factories;
+using Microsoft.Extensions.Logging;
 
 namespace ForoUniversitario.Tests.ApplicationLayer.Posts;
 
@@ -9,6 +10,7 @@ public class CommentServiceTests
     private readonly Mock<IPostRepository> _mockPostRepository;
     private readonly Mock<INotificationService> _mockNotificationService;
     private readonly Mock<ICommentFactory> _mockCommentFactory;
+    private readonly Mock<ILogger<CommentService>> _mockLogger;
     private readonly CommentService _commentService;
 
     public CommentServiceTests()
@@ -18,13 +20,15 @@ public class CommentServiceTests
         _mockPostRepository = new Mock<IPostRepository>();
         _mockNotificationService = new Mock<INotificationService>();
         _mockCommentFactory = new Mock<ICommentFactory>();
+        _mockLogger = new Mock<ILogger<CommentService>>();
 
         _commentService = new CommentService(
             _mockCommentRepository.Object,
             _mockUserRepository.Object,
             _mockPostRepository.Object,
             _mockNotificationService.Object,
-            _mockCommentFactory.Object);
+            _mockCommentFactory.Object,
+            _mockLogger.Object);
     }
 
     [Fact]

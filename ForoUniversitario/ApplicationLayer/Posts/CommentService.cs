@@ -4,6 +4,7 @@ using ForoUniversitario.DomainLayer.Posts;
 using ForoUniversitario.DomainLayer.Users;
 using ForoUniversitario.DomainLayer.Factories;
 using ForoUniversitario.InfrastructureLayer.Persistence;
+using Microsoft.Extensions.Logging;
 
 namespace ForoUniversitario.ApplicationLayer.Posts;
 
@@ -14,19 +15,22 @@ public class CommentService : ICommentService
     private readonly IPostRepository _postRepository;
     private readonly INotificationService _notificationService;
     private readonly ICommentFactory _commentFactory;
+    private readonly ILogger<CommentService> _logger;
 
     public CommentService(
         ICommentRepository commentRepository,
         IUserRepository userRepository,
         IPostRepository postRepository,
         INotificationService notificationService,
-        ICommentFactory commentFactory)
+        ICommentFactory commentFactory,
+        ILogger<CommentService> logger)
     {
         _commentRepository = commentRepository;
         _userRepository = userRepository;
         _postRepository = postRepository;
         _notificationService = notificationService;
         _commentFactory = commentFactory;
+        _logger = logger;
     }
 
     public async Task AddCommentAsync(AddCommentCommand command, Guid userId)

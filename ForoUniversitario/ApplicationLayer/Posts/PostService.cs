@@ -3,6 +3,7 @@ using ForoUniversitario.DomainLayer.Users;
 using ForoUniversitario.DomainLayer.Groups;
 using ForoUniversitario.DomainLayer.Factories;
 using ForoUniversitario.DomainLayer.DomainServices;
+using Microsoft.Extensions.Logging;
 
 namespace ForoUniversitario.ApplicationLayer.Posts;
 
@@ -15,33 +16,48 @@ public class PostService : IPostService
     private readonly IGroupRepository _groupRepository;
     private readonly IPostFactory _postFactory;
     private readonly IPostDomainService _postDomainService;
+    private readonly ILogger<PostService> _logger;
 
     public PostService(
         IPostRepository postRepository,
         IUserRepository userRepository,
         IGroupRepository groupRepository,
         IPostFactory postFactory,
-        IPostDomainService postDomainService)
+        IPostDomainService postDomainService,
+        ILogger<PostService> logger)
     {
         _postRepository = postRepository;
         _userRepository = userRepository;
         _groupRepository = groupRepository;
         _postFactory = postFactory;
         _postDomainService = postDomainService;
+        _logger = logger;
     }
 
     public async Task<Guid> CreateAsync(CreatePostCommand command)
     {
-        var post = _postFactory.CreatePost(
-            command.Title,
-            command.Content,
-            command.AuthorId,
-            command.GroupId,
-            command.Type);
+        _logger.LogInformation("Creating post: {Title} by {AuthorId}", command.Title, command.AuthorId); // ✅ SIN ?
 
-        await _postRepository.AddAsync(post);
-        await _postRepository.SaveChangesAsync();
-        return post.Id;
+        try
+        {
+            var post = _postFactory.CreatePost(
+                command.Title,
+                command.Content,
+                command.AuthorId,
+                command.GroupId,
+                command.Type);
+
+            await _postRepository.AddAsync(post);
+            await _postRepository.SaveChangesAsync();
+
+            _logger.LogInformation("Post created: {PostId}", post.Id);
+            return post.Id;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create post: {Title}", command.Title);
+            throw;
+        }
     }
 
     public async Task<PostDto?> GetByIdAsync(Guid id)

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace ForoUniversitario.Tests.ApplicationLayer.Posts;
 
 public class PostServiceTests
@@ -7,6 +9,7 @@ public class PostServiceTests
     private readonly Mock<IGroupRepository> _mockGroupRepository;
     private readonly Mock<IPostFactory> _mockPostFactory;
     private readonly Mock<IPostDomainService> _mockPostDomainService;
+    private readonly Mock<ILogger<PostService>> _mockLogger;
     private readonly PostService _postService;
 
     public PostServiceTests()
@@ -16,13 +19,15 @@ public class PostServiceTests
         _mockGroupRepository = new Mock<IGroupRepository>();
         _mockPostFactory = new Mock<IPostFactory>();
         _mockPostDomainService = new Mock<IPostDomainService>();
+        _mockLogger = new Mock<ILogger<PostService>>();
 
         _postService = new PostService(
             _mockPostRepository.Object,
             _mockUserRepository.Object,
             _mockGroupRepository.Object,
             _mockPostFactory.Object,
-            _mockPostDomainService.Object);
+            _mockPostDomainService.Object,
+            _mockLogger.Object);
     }
 
     [Fact]
