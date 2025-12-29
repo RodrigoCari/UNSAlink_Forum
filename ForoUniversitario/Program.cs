@@ -11,6 +11,7 @@ using ForoUniversitario.DomainLayer.Users;
 using ForoUniversitario.InfrastructureLayer.Persistence;
 using ForoUniversitario.InfrastructureLayer.Security;
 using ForoUniversitario.ApplicationLayer.Security;
+using ForoUniversitario.WebApi.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -123,6 +124,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.UseSwagger();
 }
+
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 

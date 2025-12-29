@@ -1,6 +1,7 @@
 using ForoUniversitario.ApplicationLayer.Users;
 using ForoUniversitario.ApplicationLayer.Security;
 using ForoUniversitario.DomainLayer.Users;
+using ForoUniversitario.DomainLayer.Exceptions;
 using Moq;
 using Xunit;
 using Microsoft.Extensions.Configuration;
@@ -44,7 +45,7 @@ public class UserServiceTests
             Role = Role.Student
         };
 
-        User savedUser = null;
+        User? savedUser = null;
         _mockRepository.Setup(x => x.AddAsync(It.IsAny<User>()))
             .Callback<User>(user => savedUser = user)
             .Returns(Task.CompletedTask);
@@ -79,7 +80,7 @@ public class UserServiceTests
         var userId = Guid.NewGuid();
         var command = new UpdateUserProfileCommand { Name = "New Name", Email = "new@email.com", Interests = new List<string>() };
         _mockRepository.Setup(x => x.GetByIdAsync(userId)).ReturnsAsync(default(User));
-        await Assert.ThrowsAsync<Exception>(() => _userService.UpdateProfileAsync(userId, command));
+        await Assert.ThrowsAsync<NotFoundException>(() => _userService.UpdateProfileAsync(userId, command));
     }
 
     [Fact]

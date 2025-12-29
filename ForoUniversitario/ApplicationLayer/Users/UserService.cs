@@ -1,5 +1,6 @@
 ﻿using ForoUniversitario.ApplicationLayer.Security;
 using ForoUniversitario.DomainLayer.Users;
+using ForoUniversitario.DomainLayer.Exceptions;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -31,7 +32,7 @@ public class UserService : IUserService
     public async Task UpdateProfileAsync(Guid id, UpdateUserProfileCommand command)
     {
         var user = await _repository.GetByIdAsync(id);
-        if (user == null) throw new Exception("User not found");
+        if (user == null) throw new NotFoundException("User not found");
 
         user.UpdateProfile(command.Name, command.Email);
         user.UpdateInterests(command.Interests);

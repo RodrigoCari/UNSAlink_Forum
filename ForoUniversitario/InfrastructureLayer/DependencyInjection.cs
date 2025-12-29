@@ -12,12 +12,7 @@ using ForoUniversitario.DomainLayer.Users;
 using ForoUniversitario.InfrastructureLayer.Persistence;
 using ForoUniversitario.InfrastructureLayer.Security;
 using Microsoft.Extensions.DependencyInjection;
-using ForoUniversitario.DomainLayer.Groups;
-using ForoUniversitario.DomainLayer.Notifications;
-using ForoUniversitario.DomainLayer.Posts;
-using ForoUniversitario.DomainLayer.Users;
-using ForoUniversitario.InfrastructureLayer.Persistence;
-using Microsoft.Extensions.DependencyInjection;
+
 
 namespace ForoUniversitario.InfrastructureLayer;
 
