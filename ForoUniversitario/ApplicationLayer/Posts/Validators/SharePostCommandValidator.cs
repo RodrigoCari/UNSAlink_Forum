@@ -7,7 +7,7 @@ public class SharePostCommandValidator : AbstractValidator<SharePostCommand>
     public SharePostCommandValidator()
     {
         RuleFor(x => x.Title)
-            .NotEmpty().WithMessage("The title cannot be empty")
+            .NotEmpty().WithMessage("The title can not be empty")
             .Length(5, 100).WithMessage("The title must be between 5 and 100 characters");
 
         RuleFor(x => x.AuthorId)
