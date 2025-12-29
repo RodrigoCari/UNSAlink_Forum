@@ -8,7 +8,7 @@ public class AddCommentCommandValidator : AbstractValidator<AddCommentCommand>
     {
         RuleFor(x => x.Content)
             .NotEmpty().WithMessage("The comment content cannot be empty")
-            .Length(1, 1000).WithMessage("The comment must be between 1 and 1000 characters long");
+            .Length(1, 1000).WithMessage("The comment must be between 1 and 1000 characters");
 
         RuleFor(x => x.PostId)
             .NotEmpty().WithMessage("A valid post must be specified");

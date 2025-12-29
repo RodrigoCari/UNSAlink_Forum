@@ -8,7 +8,7 @@ public class CreateGroupCommandValidator : AbstractValidator<CreateGroupCommand>
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("The group name cannot be empty")
-            .Length(3, 50).WithMessage("The name must be between 3 and 50 characters long")
+            .Length(3, 50).WithMessage("The name must be between 3 and 50 characters")
             .Matches(@"^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_]+$")
             .WithMessage("The name can only contain letters, numbers, spaces, hyphens, and underscores");
 
