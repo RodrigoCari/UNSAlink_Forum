@@ -15,6 +15,7 @@ public class GroupService : IGroupService
     private readonly IGroupDomainService _groupDomainService;
     private readonly IPostRepository _postRepository;
     private readonly IGroupDtoMapper _groupDtoMapper;
+
     public GroupService(
         IGroupRepository repository,
         IUserRepository userRepository,
@@ -29,19 +30,17 @@ public class GroupService : IGroupService
         _groupDomainService = groupDomainService;
         _postRepository = postRepository;
         _groupDtoMapper = groupDtoMapper;
-        _groupDtoMapper = groupDtoMapper;
     }
 
     public async Task<Guid> CreateAsync(CreateGroupCommand command)
     {
-        var admin = await _userRepository.GetByIdAsync(command.AdminId);
-        if (admin == null)
-            throw new InvalidOperationException("Admin user not found.");
+        var admin = await GetUserOrThrowAsync(command.AdminId);
 
         var group = _groupFactory.Create(command.Name, command.Description, admin);
 
         await _repository.CreateAsync(group);
         await _repository.SaveChangesAsync();
+
         return group.Id;
     }
 
@@ -53,14 +52,10 @@ public class GroupService : IGroupService
 
     public async Task JoinAsync(Guid groupId, Guid userId)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
-        var group = await _repository.FindAsync(groupId);
-
-        if (user == null || group == null)
-            throw new InvalidOperationException("Group or user not found.");
+        var user = await GetUserOrThrowAsync(userId);
+        var group = await GetGroupOrThrowAsync(groupId);
 
         await _groupDomainService.AddMemberAsync(group, user);
-
         await _repository.SaveChangesAsync();
     }
 
@@ -72,8 +67,7 @@ public class GroupService : IGroupService
 
     public async Task<IEnumerable<GroupDto>> GetGroupsByUserAsync(Guid userId)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user == null) throw new InvalidOperationException("User not found.");
+        await GetUserOrThrowAsync(userId);
 
         var groups = await _repository.GetGroupsByMemberAsync(userId);
         return groups.Select(_groupDtoMapper.Map);
@@ -86,12 +80,38 @@ public class GroupService : IGroupService
 
         foreach (var group in groups)
         {
-            var posts = await _postRepository.GetByGroupAsync(group.Id);
-            var latestPost = posts.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
-
+            var latestPost = await GetLatestPostAsync(group.Id);
             dtos.Add(_groupDtoMapper.MapWithLatestPost(group, latestPost));
         }
 
         return dtos;
+    }
+
+    // Private helper methods
+
+    private async Task<User> GetUserOrThrowAsync(Guid userId)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null)
+            throw new InvalidOperationException("User not found.");
+
+        return user;
+    }
+
+    private async Task<Group> GetGroupOrThrowAsync(Guid groupId)
+    {
+        var group = await _repository.FindAsync(groupId);
+        if (group == null)
+            throw new InvalidOperationException("Group not found.");
+
+        return group;
+    }
+
+    private async Task<Post?> GetLatestPostAsync(Guid groupId)
+    {
+        var posts = await _postRepository.GetByGroupAsync(groupId);
+        return posts
+            .OrderByDescending(p => p.CreatedAt)
+            .FirstOrDefault();
     }
 }
