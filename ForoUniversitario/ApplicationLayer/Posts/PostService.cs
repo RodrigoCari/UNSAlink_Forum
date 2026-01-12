@@ -114,59 +114,10 @@ public class PostService : IPostService
     public async Task<IEnumerable<PostDto>> GetByGroupAsync(Guid groupId)
     {
         var posts = await _postRepository.GetByGroupAsync(groupId);
+
         var result = new List<PostDto>();
-
         foreach (var post in posts)
-        {
-            var author = await _userRepository.GetByIdAsync(post.AuthorId);
-            var group = await _groupRepository.FindAsync(post.GroupId);
-
-            PostDto? sharedPostDto = null;
-
-            if (post.SharedPostId.HasValue)
-            {
-                var sharedPost = await _postRepository.GetByIdAsync(post.SharedPostId.Value);
-                if (sharedPost != null)
-                {
-                    var sharedAuthor = await _userRepository.GetByIdAsync(sharedPost.AuthorId);
-                    var sharedGroup = await _groupRepository.FindAsync(sharedPost.GroupId);
-
-                    sharedPostDto = new PostDto
-                    {
-                        Id = sharedPost.Id,
-                        Title = sharedPost.Title,
-                        Content = sharedPost.Content.Text,
-                        AuthorId = sharedPost.AuthorId,
-                        AuthorName = sharedAuthor?.Name ?? UnknownName,
-                        GroupId = sharedPost.GroupId,
-                        GroupName = sharedGroup?.Name ?? UnknownName,
-                        Type = sharedPost.Type,
-                        CreatedAt = sharedPost.CreatedAt
-                    };
-                }
-            }
-
-            result.Add(new PostDto
-            {
-                Id = post.Id,
-                Title = post.Title,
-                Content = post.Content.Text,
-                AuthorId = post.AuthorId,
-                AuthorName = author?.Name ?? UnknownName,
-                GroupId = post.GroupId,
-                GroupName = group?.Name ?? UnknownName,
-                Type = post.Type,
-                CreatedAt = post.CreatedAt,
-                SharedPost = sharedPostDto,
-                Comments = post.Comments.Select(c => new CommentDto
-                {
-                    Id = c.Id,
-                    Content = c.Content,
-                    Author = c.Author,
-                    CreatedAt = c.CreatedAt
-                }).ToList()
-            });
-        }
+            result.Add(await MapPostToDtoWithDetails(post));
 
         return result;
     }
@@ -221,5 +172,67 @@ public class PostService : IPostService
         await _postRepository.SaveChangesAsync();
 
         return sharedPost.Id;
+    }
+
+
+    private async Task<PostDto> MapPostToDtoWithDetails(Post post)
+    {
+        var author = await _userRepository.GetByIdAsync(post.AuthorId);
+        var group = await _groupRepository.FindAsync(post.GroupId);
+
+        var dto = new PostDto
+        {
+            Id = post.Id,
+            Title = post.Title,
+            Content = post.Content.Text,
+            AuthorId = post.AuthorId,
+            AuthorName = author?.Name ?? UnknownName,
+            GroupId = post.GroupId,
+            GroupName = group?.Name ?? UnknownName,
+            Type = post.Type,
+            CreatedAt = post.CreatedAt
+        };
+
+        await AttachSharedPostIfExists(post, dto);
+        AttachComments(post, dto);
+
+        return dto;
+    }
+
+    private async Task AttachSharedPostIfExists(Post post, PostDto dto)
+    {
+        if (!post.SharedPostId.HasValue)
+            return;
+
+        var sharedPost = await _postRepository.GetByIdAsync(post.SharedPostId.Value);
+        if (sharedPost == null)
+            return;
+
+        var author = await _userRepository.GetByIdAsync(sharedPost.AuthorId);
+        var group = await _groupRepository.FindAsync(sharedPost.GroupId);
+
+        dto.SharedPost = new PostDto
+        {
+            Id = sharedPost.Id,
+            Title = sharedPost.Title,
+            Content = sharedPost.Content.Text,
+            AuthorId = sharedPost.AuthorId,
+            AuthorName = author?.Name ?? UnknownName,
+            GroupId = sharedPost.GroupId,
+            GroupName = group?.Name ?? UnknownName,
+            Type = sharedPost.Type,
+            CreatedAt = sharedPost.CreatedAt
+        };
+    }
+
+    private static void AttachComments(Post post, PostDto dto)
+    {
+        dto.Comments = post.Comments.Select(c => new CommentDto
+        {
+            Id = c.Id,
+            Content = c.Content,
+            Author = c.Author,
+            CreatedAt = c.CreatedAt
+        }).ToList();
     }
 }
