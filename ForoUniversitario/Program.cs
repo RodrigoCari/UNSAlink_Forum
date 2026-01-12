@@ -19,6 +19,8 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using Microsoft.Extensions.Configuration; // Ensure this is present
 using ForoUniversitario.InfrastructureLayer;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +38,10 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
+
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -71,6 +77,11 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"))
 
 builder.Services.AddDbContext<ForumDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddIdentityModule();       // Registers User validators
+builder.Services.AddCommunityModule();      // Registers Group validators
+builder.Services.AddContentModule();        // Registers Post/Comment validators
+builder.Services.AddNotificationModule();   // Registers Notification validators
 
 // Modular Service Registration
 builder.Services.AddIdentityModule();

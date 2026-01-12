@@ -1,8 +1,12 @@
 using ForoUniversitario.ApplicationLayer.Groups;
+using ForoUniversitario.ApplicationLayer.Groups.Validators;
 using ForoUniversitario.ApplicationLayer.Notifications;
+using ForoUniversitario.ApplicationLayer.Notifications.Validators;
 using ForoUniversitario.ApplicationLayer.Posts;
+using ForoUniversitario.ApplicationLayer.Posts.Validators;
 using ForoUniversitario.ApplicationLayer.Security;
 using ForoUniversitario.ApplicationLayer.Users;
+using ForoUniversitario.ApplicationLayer.Users.Validators;
 using ForoUniversitario.DomainLayer.DomainServices;
 using ForoUniversitario.DomainLayer.Factories;
 using ForoUniversitario.DomainLayer.Groups;
@@ -12,7 +16,7 @@ using ForoUniversitario.DomainLayer.Users;
 using ForoUniversitario.InfrastructureLayer.Persistence;
 using ForoUniversitario.InfrastructureLayer.Security;
 using Microsoft.Extensions.DependencyInjection;
-
+using FluentValidation;
 
 namespace ForoUniversitario.InfrastructureLayer;
 
@@ -25,7 +29,11 @@ public static class DependencyInjection
         
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
-        
+
+        services.AddScoped<IValidator<RegisterUserCommand>, RegisterUserCommandValidator>();
+        services.AddScoped<IValidator<UpdateUserProfileCommand>, UpdateUserProfileCommandValidator>();
+        services.AddScoped<IValidator<LoginUserCommand>, LoginUserCommandValidator>();
+
         return services;
     }
 
@@ -35,6 +43,8 @@ public static class DependencyInjection
         services.AddScoped<IGroupService, GroupService>();
         services.AddScoped<IGroupFactory, GroupFactory>();
         services.AddScoped<IGroupDomainService, GroupDomainService>();
+        services.AddScoped<IValidator<CreateGroupCommand>, CreateGroupCommandValidator>();
+
         return services;
     }
 
@@ -44,9 +54,14 @@ public static class DependencyInjection
         services.AddScoped<IPostService, PostService>();
         services.AddScoped<IPostFactory, PostFactory>();
         services.AddScoped<IPostDomainService, PostDomainService>();
-        
+
         services.AddScoped<ICommentRepository, CommentRepository>();
         services.AddScoped<ICommentService, CommentService>();
+
+        services.AddScoped<IValidator<CreatePostCommand>, CreatePostCommandValidator>();
+        services.AddScoped<IValidator<SharePostCommand>, SharePostCommandValidator>();
+        services.AddScoped<IValidator<AddCommentCommand>, AddCommentCommandValidator>();
+
         return services;
     }
 
@@ -54,6 +69,7 @@ public static class DependencyInjection
     {
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IValidator<SendNotificationCommand>, SendNotificationCommandValidator>();
         return services;
     }
 }
