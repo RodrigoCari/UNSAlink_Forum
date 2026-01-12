@@ -16,7 +16,7 @@ public class PostServiceTests
     {
         _mockPostRepository = new Mock<IPostRepository>();
         _mockUserRepository = new Mock<IUserRepository>();
-        _mockGroupRepository = new Mock<IGroupRepository>();
+        _mockGroupRepository = new Mock<IGroupRepository>();-
         _mockPostFactory = new Mock<IPostFactory>();
         _mockPostDomainService = new Mock<IPostDomainService>();
         _mockLogger = new Mock<ILogger<PostService>>();

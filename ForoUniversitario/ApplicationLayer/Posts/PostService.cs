@@ -38,26 +38,18 @@ public class PostService : IPostService
     {
         _logger.LogInformation("Creating post: {Title} by {AuthorId}", command.Title, command.AuthorId); // ✅ SIN ?
 
-        try
-        {
-            var post = _postFactory.CreatePost(
-                command.Title,
-                command.Content,
-                command.AuthorId,
-                command.GroupId,
-                command.Type);
+        var post = _postFactory.CreatePost(
+            command.Title,
+            command.Content,
+            command.AuthorId,
+            command.GroupId,
+            command.Type);
 
-            await _postRepository.AddAsync(post);
-            await _postRepository.SaveChangesAsync();
+        await _postRepository.AddAsync(post);
+        await _postRepository.SaveChangesAsync();
 
-            _logger.LogInformation("Post created: {PostId}", post.Id);
-            return post.Id;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to create post: {Title}", command.Title);
-            throw;
-        }
+        _logger.LogInformation("Post created: {PostId}", post.Id);
+        return post.Id;
     }
 
     public async Task<PostDto?> GetByIdAsync(Guid id)
