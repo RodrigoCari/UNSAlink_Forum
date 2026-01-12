@@ -78,6 +78,8 @@ builder.Services.AddCommunityModule();
 builder.Services.AddContentModule();
 builder.Services.AddNotificationModule();
 
+builder.Services.AddScoped<IGroupDtoMapper, GroupDtoMapper>();
+
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<ICommentFactory, CommentFactory>();
 

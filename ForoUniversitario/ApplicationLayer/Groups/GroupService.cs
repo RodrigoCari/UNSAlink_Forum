@@ -14,19 +14,22 @@ public class GroupService : IGroupService
     private readonly IGroupFactory _groupFactory;
     private readonly IGroupDomainService _groupDomainService;
     private readonly IPostRepository _postRepository;
-
+    private readonly IGroupDtoMapper _groupDtoMapper;
     public GroupService(
         IGroupRepository repository,
         IUserRepository userRepository,
         IGroupFactory groupFactory,
         IGroupDomainService groupDomainService,
-        IPostRepository postRepository)
+        IPostRepository postRepository,
+        IGroupDtoMapper groupDtoMapper)
     {
         _repository = repository;
         _userRepository = userRepository;
         _groupFactory = groupFactory;
         _groupDomainService = groupDomainService;
         _postRepository = postRepository;
+        _groupDtoMapper = groupDtoMapper;
+        _groupDtoMapper = groupDtoMapper;
     }
 
     public async Task<Guid> CreateAsync(CreateGroupCommand command)
@@ -45,13 +48,7 @@ public class GroupService : IGroupService
     public async Task<GroupDto?> GetByIdAsync(Guid id)
     {
         var group = await _repository.FindAsync(id);
-        return group == null ? null : new GroupDto
-        {
-            Id = group.Id,
-            Name = group.Name,
-            Description = group.Description,
-            AdminId = group.AdminId
-        };
+        return group == null ? null : _groupDtoMapper.Map(group);
     }
 
     public async Task JoinAsync(Guid groupId, Guid userId)
@@ -70,13 +67,7 @@ public class GroupService : IGroupService
     public async Task<IEnumerable<GroupDto>> SearchAsync(string name)
     {
         var groups = await _repository.SearchByNameAsync(name);
-        return groups.Select(g => new GroupDto
-        {
-            Id = g.Id,
-            Name = g.Name,
-            Description = g.Description,
-            AdminId = g.AdminId
-        });
+        return groups.Select(_groupDtoMapper.Map);
     }
 
     public async Task<IEnumerable<GroupDto>> GetGroupsByUserAsync(Guid userId)
@@ -85,13 +76,7 @@ public class GroupService : IGroupService
         if (user == null) throw new InvalidOperationException("User not found.");
 
         var groups = await _repository.GetGroupsByMemberAsync(userId);
-        return groups.Select(g => new GroupDto
-        {
-            Id = g.Id,
-            Name = g.Name,
-            Description = g.Description,
-            AdminId = g.AdminId
-        });
+        return groups.Select(_groupDtoMapper.Map);
     }
 
     public async Task<IEnumerable<GroupDto>> GetAllWithLatestPostAsync()
@@ -104,24 +89,7 @@ public class GroupService : IGroupService
             var posts = await _postRepository.GetByGroupAsync(group.Id);
             var latestPost = posts.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
 
-            dtos.Add(new GroupDto
-            {
-                Id = group.Id,
-                Name = group.Name,
-                Description = group.Description,
-                AdminId = group.AdminId,
-                LatestPost = latestPost == null ? null : new PostDto
-                {
-                    Id = latestPost.Id,
-                    Title = latestPost.Title,
-                    Content = latestPost.Type == TypePost.Shared && latestPost.SharedPost != null
-                        ? latestPost.SharedPost.Content.Text
-                        : latestPost.Content.Text,
-                    CreatedAt = latestPost.CreatedAt,
-                    AuthorId = latestPost.AuthorId,
-                    GroupId = latestPost.GroupId
-                }
-            });
+            dtos.Add(_groupDtoMapper.MapWithLatestPost(group, latestPost));
         }
 
         return dtos;
