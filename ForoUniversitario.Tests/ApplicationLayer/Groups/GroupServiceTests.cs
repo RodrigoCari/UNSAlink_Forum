@@ -1,4 +1,5 @@
 namespace ForoUniversitario.Tests.ApplicationLayer.Groups;
+using ForoUniversitario.ApplicationLayer.Groups;
 
 public class GroupServiceTests
 {
@@ -7,6 +8,7 @@ public class GroupServiceTests
     private readonly Mock<IGroupFactory> _mockGroupFactory;
     private readonly Mock<IGroupDomainService> _mockGroupDomainService;
     private readonly Mock<IPostRepository> _mockPostRepository;
+    private readonly IGroupDtoMapper _groupDtoMapper;
     private readonly GroupService _groupService;
 
     public GroupServiceTests()
@@ -17,12 +19,15 @@ public class GroupServiceTests
         _mockGroupDomainService = new Mock<IGroupDomainService>();
         _mockPostRepository = new Mock<IPostRepository>();
 
+        _groupDtoMapper = new GroupDtoMapper();
+
         _groupService = new GroupService(
             _mockGroupRepository.Object,
             _mockUserRepository.Object,
             _mockGroupFactory.Object,
             _mockGroupDomainService.Object,
-            _mockPostRepository.Object);
+            _mockPostRepository.Object,
+            _groupDtoMapper);
     }
 
     [Fact]
