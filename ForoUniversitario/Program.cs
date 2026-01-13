@@ -129,6 +129,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Apply pending migrations automatically at startup
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ForumDbContext>();
+    dbContext.Database.EnsureCreated();
+}
+
 app.UseCors("AllowViteDev");
 
 // Configure the HTTP request pipeline.

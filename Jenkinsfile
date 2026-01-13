@@ -10,7 +10,13 @@ pipeline {
         stage('Clean Environment') {
             steps {
                 script {
-                    echo 'Cleaning up previous processes...'
+                    echo 'Cleaning up previous processes and Docker containers...'
+                    // Stop Docker containers
+                    try {
+                        bat 'docker compose down --remove-orphans || exit 0'
+                    } catch (Exception e) {
+                        echo 'No Docker containers to stop.'
+                    }
                     try {
                         bat 'taskkill /F /IM dotnet.exe /T || exit 0'
                         bat 'taskkill /F /IM node.exe /T || exit 0'
@@ -32,6 +38,15 @@ pipeline {
                 dir('ForoUniversitario') {
                     bat 'dotnet restore'
                     bat 'dotnet build --configuration Release --no-restore'
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                script {
+                    echo 'Building Docker images for backend...'
+                    bat 'docker compose build backend'
                 }
             }
         }
@@ -86,8 +101,8 @@ pipeline {
             steps {
                 script {
                     echo 'Starting services for Security Testing...'
-                    // Start Backend in background
-                    bat 'start /B dotnet run --project ForoUniversitario/ForoUniversitario.csproj --urls "http://localhost:5000"'
+                    // Start Backend via Docker
+                    bat 'docker compose up -d'
                     
                     // Start Frontend in background
                     dir('Frontend') {
@@ -95,14 +110,9 @@ pipeline {
                     }
 
                     // Wait for services to start
-                    sleep 15
+                    sleep 20
 
                     echo 'Running OWASP ZAP scan...'
-                    // Run ZAP Quick Scan
-                    // Note: Using "call" to ensure bat execution doesn't exit immediately if it's a script
-                    // -cmd: Run in command line mode
-                    // -quickurl: The URL to scan
-                    // -quickout: Output path for the report
                     def zapPath = '"C:\\Program Files\\ZAP\\Zed Attack Proxy\\zap.bat"'
                     def reportPath = "${WORKSPACE}\\zap-report.html"
                     
@@ -112,9 +122,7 @@ pipeline {
                         echo "ZAP Scan encountered issues: ${e.message}"
                     } finally {
                         echo 'Stopping services...'
-                        // Kill the processes started. This is a rough cleanup for Windows.
-                        // Warning: This might kill other dotnet/node instances if running.
-                        bat 'taskkill /F /IM dotnet.exe /T || exit 0'
+                        bat 'docker compose down || exit 0'
                         bat 'taskkill /F /IM node.exe /T || exit 0'
                     }
                 }
@@ -124,24 +132,19 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    echo 'Deploying Application (Live Execution)...'
+                    echo 'Deploying Application (Docker Backend + Local Frontend)...'
                     
-                    // 1. Kill existing processes (Clean Slate)
-                    // Note: This is aggressive and kills ALL dotnet/node processes. 
-                    // In a shared environment, you would need more specific filters.
+                    // 1. Stop existing Docker containers and node processes
+                    bat 'docker compose down --remove-orphans || exit 0'
                     try {
-                        bat 'taskkill /F /IM dotnet.exe /T || exit 0'
                         bat 'taskkill /F /IM node.exe /T || exit 0'
                     } catch (Exception e) {
-                        echo 'No processes to kill.'
+                        echo 'No node processes to kill.'
                     }
 
-                    // 2. Start Backend (Detached)
-                    // JENKINS_NODE_COOKIE=dontKillMe tells Jenkins NOT to kill this process tree
-                    withEnv(['JENKINS_NODE_COOKIE=dontKillMe']) {
-                        echo 'Starting Backend on http://localhost:5000...'
-                        bat 'start /B dotnet run --project ForoUniversitario/ForoUniversitario.csproj --urls "http://localhost:5000"'
-                    }
+                    // 2. Start Backend via Docker (detached)
+                    echo 'Starting Backend via Docker on http://localhost:5000...'
+                    bat 'docker compose up -d'
 
                     // 3. Start Frontend (Detached)
                     withEnv(['JENKINS_NODE_COOKIE=dontKillMe', 'VITE_API_BASE=http://localhost:5000/api']) {
@@ -151,9 +154,11 @@ pipeline {
                         }
                     }
 
-                    // 4. Wait for startup
-                    sleep 10
-                    echo 'Deployment Complete. Backend: http://localhost:5000, Frontend: http://localhost:5173'
+                    // 4. Wait for startup and verify
+                    sleep 15
+                    echo 'Verifying Docker containers are running...'
+                    bat 'docker compose ps'
+                    echo 'Deployment Complete. Backend (Docker): http://localhost:5000, Frontend: http://localhost:5173'
                 }
             }
         }
