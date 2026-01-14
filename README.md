@@ -29,10 +29,12 @@
    &nbsp;&nbsp;&nbsp;&nbsp;5.5.3 [Fábricas](#553-fábricas)  
    &nbsp;&nbsp;&nbsp;&nbsp;5.5.4 [Repositorios](#554-repositorios)  
    &nbsp;&nbsp;&nbsp;&nbsp;5.5.5 [Arquitectura en Capas](#555-arquitectura-en-capas)
-6. [Gestión de Proyecto](#6-gestión-de-proyecto)  
-   6.1 [Tablero de Trello](#61-tablero-de-trello)
-7. [Pipeline CI/CD](#7-pipeline-cicd)
-8. [Gestión de Cambios](#8-gestión-de-cambios)
+6. [Módulos y Servicios REST](#6-modulos-y-servicios-rest)
+7. [Construcción Automática](#7-construcción-automática)
+8. [Gestión de Proyecto](#8-gestión-de-proyecto)  
+   8.1 [Tablero de Trello](#81-tablero-de-trello)
+9. [Pipeline CI/CD](#9-pipeline-cicd)
+10. [Gestión de Cambios](#10-gestión-de-cambios)
 
 ---
 
@@ -1415,9 +1417,187 @@ Cada capa **depende solo de capas internas**, cumpliendo así con los principios
 
 ---
 
-## 6. Gestión de Proyecto
+## 6. Módulos y Servicios REST
 
-### 6.1 Tablero de Trello
+### 6.1 Acceso a la documentación
+
+Swagger UI: http://localhost:5050/swagger
+
+![Swagger UI](diagrams/SwaggerUI-1.png)
+
+---
+
+### 6.2 Módulos Principales
+
+### 6.2.1 📌 Módulo: Identity (Gestión de Usuarios)
+
+**Propósito:**  
+Autenticación, registro y gestión de perfiles de usuario.
+
+**Operaciones disponibles:**
+
+| Método | URL | Descripción | Parámetros |
+|--------|-----|-------------|------------|
+| POST | /api/User | Registrar nuevo usuario | RegisterUserCommand (body) |
+| POST | /api/User/login | Iniciar sesión | LoginUserCommand (body) |
+| GET | /api/User/{id} | Obtener usuario por ID | id (path, Guid) |
+| PUT | /api/User/{id} | Actualizar perfil | id (path), UpdateUserProfileCommand (body) |
+| GET | /api/User/{id}/works | Obtener trabajos del usuario | id (path, Guid) |
+
+**Modelos:**
+
+**RegisterUserCommand**
+- name: string  
+- email: user@example.com  
+- password: string (min 6 caracteres)  
+- role: number  
+
+**UserDto (Response)**
+- id: guid  
+- name: string  
+- email: string  
+- role: string  
+- interests: string[]  
+
+**Entidades del dominio:**
+- User (Entidad raíz)  
+- Role (Value Object - Enum)  
+
+---
+
+### 6.2.2 📌 Módulo: Community (Gestión de Grupos)
+
+**Propósito:**  
+Crear, unirse y gestionar grupos de estudiantes.
+
+**Operaciones disponibles:**
+
+| Método | URL | Descripción | Parámetros |
+|--------|-----|-------------|------------|
+| POST | /api/Group | Crear grupo | CreateGroupCommand (body) |
+| GET | /api/Group/{id} | Obtener grupo por ID | id (path, Guid) |
+| POST | /api/Group/{groupId}/join | Unirse a grupo | groupId (path), userId (query) |
+| POST | /api/Group/{groupId}/leave | Abandonar grupo | groupId (path), userId (query) |
+| GET | /api/Group/search | Buscar grupos | name (query) |
+| DELETE | /api/Group/{id} | Eliminar grupo | id (path, Guid) |
+
+**Modelos:**
+
+**CreateGroupCommand**
+- name: string  
+- description: string  
+- adminId: guid  
+
+**GroupDto (Response)**
+- id: guid  
+- name: string  
+- description: string  
+- adminId: guid  
+
+---
+
+### 6.2.3 📌 Módulo: Content (Posts y Comentarios)
+
+**Propósito:**  
+Crear, compartir y comentar publicaciones.
+
+**Operaciones disponibles:**
+
+| Método | URL | Descripción | Parámetros |
+|--------|-----|-------------|------------|
+| POST | /api/Post | Crear publicación | CreatePostCommand (body) |
+| GET | /api/Post/{id} | Obtener post | id (path, Guid) |
+| GET | /api/Post/group/{groupId} | Posts de un grupo | groupId (path, Guid) |
+| DELETE | /api/Post/{id} | Eliminar post | id (path, Guid) |
+| POST | /api/Post/{postId}/comments | Agregar comentario | postId (path), AddCommentCommand (body) |
+
+---
+
+### 6.2.4 📌 Módulo: Notifications
+
+**Propósito:**  
+Enviar notificaciones a usuarios.
+
+**Operaciones disponibles:**
+
+| Método | URL | Descripción | Parámetros |
+|--------|-----|-------------|------------|
+| POST | /api/Notification | Enviar notificación | SendNotificationCommand (body) |
+| GET | /api/Notification/user/{userId} | Notificaciones de usuario | userId (path, Guid) |
+
+---
+
+### 6.3 Ejemplos de Uso
+
+**Con cURL:**
+- Registrar usuario
+- Iniciar sesión
+- Crear grupo (requiere token JWT)
+
+---
+
+## 7. Construcción Automática
+
+### 7.1 Herramientas Utilizadas
+
+| Componente | Herramienta | Propósito |
+|-----------|------------|-----------|
+| Backend | dotnet CLI | Compilación, restauración de dependencias y empaquetado |
+| Frontend | npm | Gestión de dependencias y build de producción |
+| Contenedores | Docker & Docker Compose | Empaquetado y orquestación de servicios |
+
+---
+
+### 7.2 Compilación del Backend
+
+- Restauración de dependencias
+- Compilación en modo Release
+- Publicación de artefactos
+
+**Salida esperada:**  
+Build succeeded, sin errores ni advertencias.
+
+---
+
+### 7.3 Compilación del Frontend
+
+- Instalación de dependencias
+- Build de producción
+
+**Artefactos generados:**  
+Frontend/dist/
+
+---
+
+### 7.4 Empaquetado con Docker
+
+**Backend:**  
+Imagen ASP.NET con publicación en modo Release.
+
+**Frontend:**  
+Imagen Nginx sirviendo archivos estáticos del build.
+
+---
+
+### 7.5 Construcción Automatizada en Jenkins
+
+- Build del backend
+- Build del frontend
+- Construcción de imágenes Docker
+
+---
+
+### 7.6 Evidencia de Construcción
+
+![Jenkins Build Success](diagrams/Jenkins-Build-Success.png)
+
+![Docker Images List](diagrams/Docker-Images-List.png)
+
+---
+
+## 8. Gestión de Proyecto
+
+### 8.1 Tablero de Trello
 
 https://trello.com/b/asrftQrL/unsalink
 
@@ -1432,7 +1612,7 @@ https://trello.com/b/asrftQrL/unsalink
 
 ---
 
-## 7. Pipeline CI/CD
+## 9. Pipeline CI/CD
 
 ---
 
@@ -1465,7 +1645,7 @@ El proyecto cuenta con un pipeline de Integración y Despliegue Continuo (CI/CD)
 
 ---
 
-## 8. Gestión de Cambios
+## 10. Gestión de Cambios
 
 ---
 
