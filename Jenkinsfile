@@ -145,13 +145,13 @@ pipeline {
                     }
 
                     // 2. Start Backend via Docker (detached)
-                    echo 'Starting Backend via Docker on http://localhost:5000...'
+                    echo 'Starting Backend via Docker on http://localhost:5050...'
                     bat 'docker compose up -d --force-recreate'
 
                     // 3. Start Frontend (Detached)
-                    withEnv(['JENKINS_NODE_COOKIE=dontKillMe', 'VITE_API_BASE=http://localhost:5000/api']) {
+                    withEnv(['JENKINS_NODE_COOKIE=dontKillMe', 'VITE_API_BASE=http://localhost:5050/api']) {
                         dir('Frontend') {
-                            echo 'Starting Frontend on http://localhost:5173 with API at http://localhost:5000/api...'
+                            echo 'Starting Frontend on http://localhost:5173 with API at http://localhost:5050/api...'
                             bat 'start /B npm run dev -- --port 5173'
                         }
                     }
@@ -160,7 +160,7 @@ pipeline {
                     sleep 15
                     echo 'Verifying Docker containers are running...'
                     bat 'docker compose ps'
-                    echo 'Deployment Complete. Backend (Docker): http://localhost:5000, Frontend: http://localhost:5173'
+                    echo 'Deployment Complete. Backend (Docker): http://localhost:5050, Frontend: http://localhost:5173'
                 }
             }
         }
