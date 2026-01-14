@@ -139,12 +139,14 @@ using (var scope = app.Services.CreateScope())
 app.UseCors("AllowViteDev");
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// Enable Swagger in all environments for API documentation
+app.MapOpenApi();
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-    app.MapOpenApi();
-    app.UseSwaggerUI();
-    app.UseSwagger();
-}
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Foro Universitario API v1");
+    options.RoutePrefix = "swagger";
+});
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
