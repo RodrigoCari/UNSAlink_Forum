@@ -29,7 +29,7 @@
    &nbsp;&nbsp;&nbsp;&nbsp;5.5.3 [Fábricas](#553-fábricas)  
    &nbsp;&nbsp;&nbsp;&nbsp;5.5.4 [Repositorios](#554-repositorios)  
    &nbsp;&nbsp;&nbsp;&nbsp;5.5.5 [Arquitectura en Capas](#555-arquitectura-en-capas)
-6. [Módulos y Servicios REST](#6-modulos-y-servicios-rest)
+6. [Módulos y Servicios REST](#6-módulos-y-servicios-rest)
 7. [Construcción Automática](#7-construcción-automática)
 8. [Gestión de Proyecto](#8-gestión-de-proyecto)  
    8.1 [Tablero de Trello](#81-tablero-de-trello)
@@ -388,6 +388,7 @@ public interface IUserRepository
     Task<User?> GetByNameAsync(string name);
 }
 ```
+
 
 Beneficio: Identificar rápidamente qué tipos son interfaces facilita el diseño basado en contratos y la inyección de dependencias.
 
@@ -1642,6 +1643,228 @@ El proyecto cuenta con un pipeline de Integración y Despliegue Continuo (CI/CD)
 
 6.  **Pruebas de Seguridad:**
     *   Escaneo de vulnerabilidades web utilizando **OWASP ZAP**.
+  
+---
+
+### 9.2 Etapas detalladas
+
+#### 9.2.1 Clean Environment
+```csharp
+stage('Clean Environment') {
+    steps {
+        script {
+            echo 'Cleaning up previous processes and Docker containers...'
+            bat 'docker compose down --remove-orphans || exit 0'
+            bat 'taskkill /F /IM dotnet.exe /T || exit 0'
+            bat 'taskkill /F /IM node.exe /T || exit 0'
+        }
+    }
+}
+```
+
+#### 9.2.2 Checkout
+
+```csharp
+stage('Checkout') {
+    steps {
+        checkout scm
+    }
+}
+```
+
+#### 9.2.3 Build Backend
+
+```csharp
+stage('Build Backend') {
+    steps {
+        dir('ForoUniversitario') {
+            bat 'dotnet restore'
+            bat 'dotnet build --configuration Release --no-restore'
+        }
+    }
+}
+```
+
+#### 9.2.4 Pruebas Unitarias (xUnit)
+
+```csharp
+stage('Unit Tests') {
+    steps {
+        dir('ForoUniversitario. Tests') {
+            bat 'dotnet test --configuration Release --logger "junit;LogFilePath=.. \\test-results. xml" --collect:"XPlat Code Coverage"'
+        }
+    }
+}
+```
+
+Publicación de resultados:
+
+```csharp
+post {
+    always {
+        junit 'test-results.xml'
+        publishHTML([
+            reportDir: 'ForoUniversitario.Tests/TestResults',
+            reportFiles:  'index.html',
+            reportName: 'Code Coverage'
+        ])
+    }
+}
+```
+
+
+### 9.2.5 Análisis Estático - SonarQube
+
+```csharp
+stage('Static Analysis') {
+    steps {
+        dir('ForoUniversitario') {
+            bat 'dotnet sonarscanner begin /k:"ForoUniversitario" /d: sonar.host.url="http://localhost:9000" /d:sonar. login="%SONAR_TOKEN%"'
+            bat 'dotnet build'
+            bat 'dotnet sonarscanner end /d:sonar.login="%SONAR_TOKEN%"'
+        }
+    }
+}
+
+
+```
+
+Configuración (sonar-project.properties):
+
+```csharp
+sonar.projectKey=ForoUniversitario
+sonar.projectName=Foro Universitario
+sonar.sources=. 
+sonar.host.url=http://localhost:9000
+sonar.cs.opencover.reportsPaths=**/TestResults/**/coverage.opencover.xml
+sonar.exclusions=**/Migrations/**,**/obj/**,**/bin/**
+```
+
+### 9.2.6 Build Docker Images
+```csharp
+stage('Docker Build') {
+    steps {
+        script {
+            echo 'Building Docker images...'
+            bat 'docker compose build backend'
+        }
+    }
+}
+
+```
+
+### 9.2.7 Deploy (Despliegue Automático)
+```csharp
+stage('Deploy') {
+    steps {
+        script {
+            echo 'Deploying with Docker Compose...'
+            bat 'docker compose down --volumes --remove-orphans || exit 0'
+            bat 'docker compose up -d --force-recreate'
+            sleep 15
+            bat 'docker compose ps'
+            echo 'Deployment Complete.'
+        }
+    }
+}
+```
+
+### 9.2.8 Pruebas Funcionales (Selenium)
+```csharp
+stage('Functional Tests') {
+    steps {
+        script {
+            bat 'pip install selenium webdriver-manager'
+            bat 'python tests/functional/functional_tests.py'
+        }
+    }
+}
+```
+
+Ejemplo de test con Selenium:
+
+```python
+# tests/functional/functional_tests. py
+from selenium import webdriver
+from selenium.webdriver.common. by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+def test_user_registration():
+    driver = webdriver.Chrome()
+    
+```
+
+### 9.2.9 Pruebas de Rendimiento (JMeter)
+```csharp
+stage('Performance Tests') {
+    steps {
+        dir('tests/performance') {
+            bat '"C:\\JMeter\\apache-jmeter-5.6.3\\bin\\jmeter.bat" -n -t performance_plan.jmx -l results. jtl -e -o report'
+        }
+    }
+    post {
+        always {
+            perfReport sourceDataFiles: 'tests/performance/results.jtl'
+        }
+    }
+}
+```
+
+Plan de pruebas JMeter:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.5">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
+      <stringProp name="TestPlan.comments"></stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+        </HTTPSamplerProxy>
+        <hashTree/>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>
+```
+
+#### 9.2.10 Pruebas de Seguridad (OWASP ZAP)
+```csharp
+stage('Security Tests') {
+    steps {
+        script {
+            echo 'Running OWASP ZAP scan...'
+            def zapPath = '"C:\\Program Files\\ZAP\\Zed Attack Proxy\\zap.bat"'
+            def reportPath = "${WORKSPACE}\\zap-report.html"
+            
+            bat "${zapPath} -cmd -quickurl http://localhost:5173 -quickout \"${reportPath}\""
+        }
+    }
+    post {
+        always {
+            publishHTML([
+                reportDir: '.',
+                reportFiles: 'zap-report.html',
+                reportName: 'OWASP ZAP Security Report'
+            ])
+        }
+    }
+}
+```
+
+### 9.3 Integración Completa
+Jenkinsfile completo: [Ver en GitHub](https://github.com/RodrigoCari/UNSAlink_Forum/blob/development/Jenkinsfile)
 
 ---
 
@@ -1651,6 +1874,32 @@ El proyecto cuenta con un pipeline de Integración y Despliegue Continuo (CI/CD)
 
 La gestión de cambios y tareas se realiza a través de **GitHub Projects** y **Issues**, siguiendo una metodología ágil.
 
-*   **Issues:** Cada nueva funcionalidad, mejora o corrección de error se registra como un *Issue* en GitHub.
-*   **Ramas:** Se crea una rama específica para cada *Issue* (ej. `feature/nueva-funcionalidad`), que posteriormente se integra a `development` y finalmente a `main` mediante *Pull Requests*.
-*   **Trazabilidad:** Los *commits* se vinculan a los *Issues* correspondientes, permitiendo un seguimiento detallado del historial de cambios.
+*   **Issues:** Cada nueva funcionalidad, mejora o corrección de error se registra como un *Issue* en GitHub. https://github.com/RodrigoCari/UNSAlink_Forum/issues/10
+```csharp
+**Título:** Refactorizar UserService para usar Repository Pattern
+
+**Descripción:**
+Aplicar el patrón Repository para separar la lógica de acceso a datos.
+
+**Tareas:**
+- [ ] Crear IUserRepository
+- [ ] Implementar UserRepository
+- [ ] Actualizar UserService
+- [ ] Escribir pruebas unitarias
+
+**Labels:** `refactor`, `backend`, `code quality`
+```
+
+*   **Ramas:** Se crea una rama específica para cada *Issue* (ej. `feature/nueva-funcionalidad`), que posteriormente se integra a `development` y finalmente a `main` mediante *Pull Requests*. https://github.com/RodrigoCari/UNSAlink_Forum/tree/feature/fluent-validation
+  
+*   **Trazabilidad:** Los *commits* se vinculan a los *Issues* correspondientes, permitiendo un seguimiento detallado del historial de cambios. https://github.com/RodrigoCari/UNSAlink_Forum/issues?q=is%3Aissue%20state%3Aclosed
+```csharp
+# Cierra un issue
+git commit -m "Fixes #42 - Corregido error de validación de email"
+
+# Referencia un issue
+git commit -m "Relacionado con #15 - Mejorada validación de campos"
+
+# Múltiples issues
+git commit -m "Fixes #10, Fixes #12 - Implementado sistema de notificaciones"
+```
