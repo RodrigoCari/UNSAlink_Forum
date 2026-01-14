@@ -101,8 +101,10 @@ pipeline {
             steps {
                 script {
                     echo 'Starting services for Security Testing...'
-                    // Start Backend via Docker
-                    bat 'docker compose up -d'
+                    // Force stop any existing containers to avoid port conflicts
+                    bat 'docker compose down --volumes --remove-orphans || exit 0'
+                    // Start Backend via Docker with force recreate
+                    bat 'docker compose up -d --force-recreate'
                     
                     // Start Frontend in background
                     dir('Frontend') {
@@ -135,7 +137,7 @@ pipeline {
                     echo 'Deploying Application (Docker Backend + Local Frontend)...'
                     
                     // 1. Stop existing Docker containers and node processes
-                    bat 'docker compose down --remove-orphans || exit 0'
+                    bat 'docker compose down --volumes --remove-orphans || exit 0'
                     try {
                         bat 'taskkill /F /IM node.exe /T || exit 0'
                     } catch (Exception e) {
@@ -144,7 +146,7 @@ pipeline {
 
                     // 2. Start Backend via Docker (detached)
                     echo 'Starting Backend via Docker on http://localhost:5000...'
-                    bat 'docker compose up -d'
+                    bat 'docker compose up -d --force-recreate'
 
                     // 3. Start Frontend (Detached)
                     withEnv(['JENKINS_NODE_COOKIE=dontKillMe', 'VITE_API_BASE=http://localhost:5000/api']) {
