@@ -7,6 +7,7 @@
 - Jose Rodrigo Cari Almiron
 - Alex Enrique Cañapataña Vargas
 - Jesus Salvador Quinteros Condori
+- Ivan Alexander Lopez Zegarra
 
 ---
 
@@ -29,12 +30,27 @@
    &nbsp;&nbsp;&nbsp;&nbsp;5.5.3 [Fábricas](#553-fábricas)  
    &nbsp;&nbsp;&nbsp;&nbsp;5.5.4 [Repositorios](#554-repositorios)  
    &nbsp;&nbsp;&nbsp;&nbsp;5.5.5 [Arquitectura en Capas](#555-arquitectura-en-capas)
-6. [Módulos y Servicios REST](#6-módulos-y-servicios-rest)
+6. [Módulos y Servicios REST](#6-módulos-y-servicios-rest)  
+   6.1 [Acceso a la documentación](#61-acceso-a-la-documentación)  
+   6.2 [Módulos Principales](#62-módulos-principales)  
+   6.3 [Ejemplos de Uso](#63-ejemplos-de-uso)
 7. [Construcción Automática](#7-construcción-automática)
 8. [Gestión de Proyecto](#8-gestión-de-proyecto)  
    8.1 [Tablero de Trello](#81-tablero-de-trello)
-9. [Pipeline CI/CD](#9-pipeline-cicd)
-10. [Gestión de Cambios](#10-gestión-de-cambios)
+9. [Pipeline CI/CD](#9-pipeline-cicd)  
+   9.2 [Etapas detalladas](#92-etapas-detalladas)  
+   &nbsp;&nbsp;&nbsp;&nbsp;9.2.1 [Clean Environment](#921-clean-environment)  
+   &nbsp;&nbsp;&nbsp;&nbsp;9.2.2 [Checkout](#922-checkout)  
+   &nbsp;&nbsp;&nbsp;&nbsp;9.2.3 [Build Backend](#923-build-backend)  
+   &nbsp;&nbsp;&nbsp;&nbsp;9.2.4 [Pruebas Unitarias (xUnit)](#924-pruebas-unitarias-xunit)  
+   &nbsp;&nbsp;&nbsp;&nbsp;9.2.5 [Análisis Estático - SonarQube](#925-análisis-estático---sonarqube)  
+   &nbsp;&nbsp;&nbsp;&nbsp;9.2.6 [Build Docker Images](#926-build-docker-images)  
+   &nbsp;&nbsp;&nbsp;&nbsp;9.2.7 [Deploy (Despliegue Automático)](#927-deploy-despliegue-automático)  
+   &nbsp;&nbsp;&nbsp;&nbsp;9.2.8 [Pruebas Funcionales (Selenium)](#928-pruebas-funcionales-selenium)  
+   &nbsp;&nbsp;&nbsp;&nbsp;9.2.9 [Pruebas de Rendimiento (JMeter)](#929-pruebas-de-rendimiento-jmeter)  
+   &nbsp;&nbsp;&nbsp;&nbsp;9.2.10 [Pruebas de Seguridad (OWASP ZAP)](#9210-pruebas-de-seguridad-owasp-zap)  
+   9.3 [Integración Completa](#93-integración-completa)
+11. [Gestión de Cambios](#10-gestión-de-cambios)  
 
 ---
 
@@ -1420,6 +1436,8 @@ Cada capa **depende solo de capas internas**, cumpliendo así con los principios
 
 ## 6. Módulos y Servicios REST
 
+El sistema expone una API REST siguiendo el estándar **OpenAPI 3.0** documentada mediante **Swagger UI**. 
+
 ### 6.1 Acceso a la documentación
 
 Swagger UI: http://localhost:5050/swagger
@@ -1572,13 +1590,26 @@ Frontend/dist/
 
 ### 7.4 Empaquetado con Docker
 
-**Backend:**  
-Imagen ASP.NET con publicación en modo Release.
+```code
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+WORKDIR /app
+EXPOSE 8080
 
-**Frontend:**  
-Imagen Nginx sirviendo archivos estáticos del build.
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+COPY ["ForoUniversitario/ForoUniversitario.csproj", "ForoUniversitario/"]
+RUN dotnet restore
+COPY . .
+RUN dotnet build "ForoUniversitario/ForoUniversitario.csproj" -c Release -o /app/build
 
----
+FROM build AS publish
+RUN dotnet publish -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish . 
+ENTRYPOINT ["dotnet", "ForoUniversitario. dll"]
+```
 
 ### 7.5 Construcción Automatizada en Jenkins
 
@@ -1586,23 +1617,85 @@ Imagen Nginx sirviendo archivos estáticos del build.
 - Build del frontend
 - Construcción de imágenes Docker
 
+```code
+stage('Build Backend') {
+    steps {
+        dir('ForoUniversitario') {
+            bat 'dotnet restore'
+            bat 'dotnet build --configuration Release --no-restore'
+        }
+    }
+}
+
+stage('Build Frontend') {
+    steps {
+        dir('Frontend') {
+            bat 'npm install'
+            bat 'npm run build'
+        }
+    }
+}
+
+stage('Docker Build') {
+    steps {
+        script {
+            echo 'Building Docker images...'
+            bat 'docker compose build backend frontend'
+        }
+    }
+}
+```
+
 ---
 
 ### 7.6 Evidencia de Construcción
 
-![Jenkins Build Success](diagrams/Jenkins-Build-Success.png)
+![Jenkins Build Success](diagrams/JenkinsBuildSuccess.png)
 
-![Docker Images List](diagrams/Docker-Images-List.png)
+![Docker Images List](diagrams/DockerDeploy.png)
 
 ---
 
 ## 8. Gestión de Proyecto
+
+```code
+
+┌──────────────────────────────────────────────────────────────┐
+│  DESARROLLADOR  →  git push  →  GitHub (development branch)  │
+└─────────────────────┬────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────────────────────┐
+│               JENKINS (Webhook/Polling)                      │
+│  - Detecta cambios en development                            │
+│  - Lee Jenkinsfile del repositorio                           │
+│  - Ejecuta pipeline automáticamente                          │
+└─────────────────────┬────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────────────────────┐
+│  ETAPAS DEL PIPELINE (Secuencial)                            │
+│  1. Clean  →  2.  Checkout  →  3. Build  →  4. Tests  →       │
+│  5. Static Analysis  →  6. Docker Build  →  7. Deploy  →     │
+│  8. Functional Tests  →  9. Performance  →  10. Security     │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
 
 ### 8.1 Tablero de Trello
 
 https://trello.com/b/asrftQrL/unsalink
 
 ![Trello Project Screenshot](diagrams/TrelloProjectScreenshot.png)
+
+---
+
+### 8.2 Gihub Projects
+
+https://github.com/users/RodrigoCari/projects/1
+
+![Github Projects Screenshot](diagrams/GithubProjects.png)
 
 ---
 
@@ -1792,6 +1885,23 @@ from selenium.webdriver.support import expected_conditions as EC
 
 def test_user_registration():
     driver = webdriver.Chrome()
+
+class FunctionalTests(unittest.TestCase):
+    def setUp(self):
+        chrome_options = Options()
+        chrome_options.add_argument("--headless") 
+        chrome_options.add_argument("--no-sandbox")
+        self.driver = webdriver.Chrome(options=chrome_options)
+
+    def test_user_registration():
+        driver = webdriver.Chrome()
+
+    def test_homepage_title(self):
+        self.driver.get("http://localhost:5173")
+        self.assertIn("UNSAlink", self.driver.title)
+
+    def tearDown(self):
+        self.driver.quit()
     
 ```
 
