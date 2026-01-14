@@ -16,7 +16,7 @@ export async function fetchGroupPosts(groupId) {
 }
 
 export async function addComment(postId, content) {
-  await api.post(`/Post/${postId}/comment`, { content });
+  await api.post(`/Post/${postId}/comment`, { postId, content });
 }
 
 export async function getPostById(postId) {
